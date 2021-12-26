@@ -10,6 +10,7 @@ class Shaders:
             vert = 'pbr_v.vert'
             frag = 'pbr_f.frag'
             scene_shader = Shader.load(Shader.SL_GLSL, vert, frag)
+            node.set_shader_off()
             node.set_shader(scene_shader)
 
         if skin:
@@ -18,6 +19,7 @@ class Shaders:
             arm_shader = Shader.load(Shader.SL_GLSL, vert, frag)
             arm_attrib = ShaderAttrib.make(arm_shader)
             arm_attrib.set_flag(ShaderAttrib.F_hardware_skinning, True)
+            node.set_shader_off()
             node.set_attrib(arm_attrib)
         
         if tracer:
