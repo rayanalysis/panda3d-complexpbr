@@ -4,4 +4,7 @@ setup(
     name='panda3d-complexpbr',
     version='0.1',
     packages=['complexpbr'],
-)
+    package_data={
+       "": ["*.txt","*.vert", "*.frag"],
+       }
+    )
