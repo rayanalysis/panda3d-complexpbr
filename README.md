@@ -33,7 +33,7 @@ python3 setup.py bdist_wheel
 ```bash
 pip3 install 'path/to/panda3d-complexpbr.whl'
 ```
-## Installing with PyPi:
+## Installing with PyPI:
 
 To-do.
 
