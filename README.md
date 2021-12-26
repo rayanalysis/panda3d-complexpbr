@@ -9,7 +9,7 @@ The goal of this project is to provide extremely easy to use scene shaders to ex
 ```python
 from direct.showbase.ShowBase import ShowBase
 from direct.actor.Actor import Actor
-from complexpbr import Shaders as pbr
+import complexpbr
 import gltf
 
 class main(ShowBase):
@@ -18,12 +18,12 @@ class main(ShowBase):
          gltf.patch_loader(self.loader)
          
          # apply a scene shader with no hardware skinning
-         pbr.apply_shader(self, node=render, scene=True)
+         complexpbr.apply_shader(node=render, scene=True)
          
          # apply an "Actor shader" for hardware skinning
          your_character = Actor(loader.load_model('character.gltf'))
          your_character.reparent_to(render)
-         pbr.apply_shader(self, node=your_character, skin=True)
+         complexpbr.apply_shader(node=your_character, skin=True)
 ```
 ## Building:
 
