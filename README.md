@@ -6,7 +6,7 @@ This is an early prototype for applying prebuilt scene shaders with an OpenGL 33
 The goal of this project is to provide extremely easy to use scene shaders to expose the full functionality of Panda3D rendering, including interoperation with CommonFilters and setting shaders on a per-node basis. 
 
 Usage:
-
+```python
 # from direct.showbase.ShowBase import ShowBase
 from direct.actor.Actor import Actor
 from complexpbr import Shaders as pbr
@@ -23,7 +23,7 @@ class main(ShowBase):
          # apply an "Actor shader" for hardware skinning
          your_character = Actor(loader.load_model('character.gltf'))
          pbr.apply_shader(self, node=your_character, skin=True)
-         
+'''
 Building:
 
 The module may be built using setuptools. python3 setup.py bdist_wheel
