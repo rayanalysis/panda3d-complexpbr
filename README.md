@@ -1,7 +1,7 @@
 # panda3d-complexpbr
 Functional node level shader application for Panda3D.
 
-This is an early prototype for applying prebuilt scene shaders with an OpenGL 330 PBR workflow using Panda3D. The module assumes you have .gltf files prepared with fully complete 4-slot metal-rough texturing on a BSDF Principled Node.
+This is an early prototype for applying prebuilt scene shaders with an OpenGL 330 PBR workflow using Panda3D. The module assumes you have .gltf files prepared with fully complete 4-slot metal-rough texturing on a BSDF Principled Node. Currently, the shaders are modified and prearranged versions based on https://github.com/Moguri/panda3d-simplepbr
 
 The goal of this project is to provide extremely easy to use scene shaders to expose the full functionality of Panda3D rendering, including interoperation with CommonFilters and setting shaders on a per-node basis. 
 
