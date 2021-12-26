@@ -26,7 +26,10 @@ class main(ShowBase):
 ```
 ## Building:
 
-The module may be built using setuptools. python3 setup.py bdist_wheel
+The module may be built using setuptools. 
+```bash
+python3 setup.py bdist_wheel
+```
 ```bash
 pip3 install 'path/to/panda3d-complexpbr.whl'
 ```
