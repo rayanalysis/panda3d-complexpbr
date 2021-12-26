@@ -41,3 +41,7 @@ To-do.
 
 - Implementing a GLSL raytracer or pathtracer scene shader
 - Installation over pip
+
+## Requirements:
+
+- panda3d-gltf
