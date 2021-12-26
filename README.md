@@ -7,7 +7,7 @@ The goal of this project is to provide extremely easy to use scene shaders to ex
 
 ## Usage:
 ```python
-# from direct.showbase.ShowBase import ShowBase
+from direct.showbase.ShowBase import ShowBase
 from direct.actor.Actor import Actor
 from complexpbr import Shaders as pbr
 import gltf
