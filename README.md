@@ -23,7 +23,7 @@ class main(ShowBase):
          # apply an "Actor shader" for hardware skinning
          your_character = Actor(loader.load_model('character.gltf'))
          pbr.apply_shader(self, node=your_character, skin=True)
-'''
+```
 Building:
 
 The module may be built using setuptools. python3 setup.py bdist_wheel
