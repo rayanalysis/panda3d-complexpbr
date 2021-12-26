@@ -22,6 +22,7 @@ class main(ShowBase):
          
          # apply an "Actor shader" for hardware skinning
          your_character = Actor(loader.load_model('character.gltf'))
+         your_character.reparent_to(render)
          pbr.apply_shader(self, node=your_character, skin=True)
 ```
 ## Building:
