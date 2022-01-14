@@ -2,19 +2,19 @@ import os
 from panda3d.core import Shader, ShaderAttrib
 
 
-init = True
+shader_init = True
 scene_shader = ''
 arm_attrib = ''
 
 def apply_shader(node=None, scene=False, skin=False, tracer=False):
-    global init
+    global shader_init
     global scene_shader
     global arm_attrib
 
     shader_dir = os.path.join(os.path.dirname(__file__), '')
     
-    if init:
-        init = False
+    if shader_init:
+        shader_init = False
     
         with open(os.path.join(shader_dir, 'pbr_v.vert')) as shaderfile:
             vert = shaderfile.name
