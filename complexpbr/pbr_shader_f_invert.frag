@@ -55,7 +55,7 @@ uniform sampler2D p3d_Texture0;
 uniform sampler2D p3d_Texture1;
 uniform sampler2D p3d_Texture2;
 uniform sampler2D p3d_Texture3;
-// get a cubemap from game
+// get a cubemap
 uniform samplerCube cubemaptex;
 uniform float env_intensity;
 
@@ -155,8 +155,8 @@ void main() {
         vec3 F = specular_reflection(func_params);
         float V = visibility_occlusion(func_params); // V = G / (4 * n_dot_l * n_dot_v)
         float D = microfacet_distribution(func_params);
-		
-		vec4 env_map_rough = env_map * alpha_roughness;
+
+        vec4 env_map_rough = env_map * alpha_roughness;
         vec3 diffuse_contrib = (diffuse_color * env_map_rough.xyz) * diffuse_function(func_params);
         vec3 spec_contrib = vec3(F * V * D) * env_map_rough.xyz;
         color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib) * shadow;
@@ -169,6 +169,6 @@ void main() {
     float fog_distance = length(v_position);
     float fog_factor = clamp(1.0 / exp(fog_distance * p3d_Fog.density), 0.0, 1.0);
     color = mix(p3d_Fog.color, color, fog_factor);
-	
-	o_color = color;
+
+    o_color = color;
 }
