@@ -157,21 +157,18 @@ void main() {
         float D = microfacet_distribution(func_params);
 		
 		vec4 env_map_rough = env_map * alpha_roughness;
-
         vec3 diffuse_contrib = (diffuse_color * env_map_rough.xyz) * diffuse_function(func_params);
         vec3 spec_contrib = vec3(F * V * D) * env_map_rough.xyz;
         color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib) * shadow;
     }
 
-    color.rgb += diffuse_color * (p3d_LightModel.ambient.rgb * 1.5) * ambient_occlusion; // * env_map.xyz;
+    color.rgb += diffuse_color * (p3d_LightModel.ambient.rgb * 1.5) * ambient_occlusion;
     color.rgb += emission;
 
     // Exponential fog
     float fog_distance = length(v_position);
     float fog_factor = clamp(1.0 / exp(fog_distance * p3d_Fog.density), 0.0, 1.0);
     color = mix(p3d_Fog.color, color, fog_factor);
-
-    //o_color = color * (env_map * 100);
-    //o_color = color * texture(cubemaptex, v);
+	
 	o_color = color;
 }
