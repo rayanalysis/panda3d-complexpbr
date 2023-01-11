@@ -13,10 +13,10 @@ import complexpbr
 class main(ShowBase):
      def __init__(self):
          super().__init__()
-         gltf.patch_loader(self.loader)
          
          # apply a scene shader with support for realtime environment metal reflections
-         complexpbr.apply_shader(node=render)
+		 # node can be base.render or any model node, intensity is the env_map intensity in float
+         complexpbr.apply_shader(node=render,intensity=50)
 ```
 ## Building:
 
