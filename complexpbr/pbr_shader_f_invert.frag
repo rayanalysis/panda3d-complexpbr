@@ -55,6 +55,9 @@ uniform sampler2D p3d_Texture0;
 uniform sampler2D p3d_Texture1;
 uniform sampler2D p3d_Texture2;
 uniform sampler2D p3d_Texture3;
+// get a cubemap from game
+uniform samplerCube cubemaptex;
+uniform float env_intensity;
 
 const vec3 F0 = vec3(0.04);
 const float PI = 3.141592653589793;
@@ -115,6 +118,7 @@ void main() {
     float ambient_occlusion = metal_rough.r;
     vec3 emission = p3d_Material.emission.rgb * texture2D(p3d_Texture3, v_texcoord).rgb;
     vec4 color = vec4(vec3(0.0), base_color.a);
+	vec4 env_map = texture(cubemaptex, v) * env_intensity;
 
     for (int i = 0; i < p3d_LightSource.length(); ++i) {
         vec3 lightcol = p3d_LightSource[i].diffuse.rgb;
@@ -151,13 +155,15 @@ void main() {
         vec3 F = specular_reflection(func_params);
         float V = visibility_occlusion(func_params); // V = G / (4 * n_dot_l * n_dot_v)
         float D = microfacet_distribution(func_params);
+		
+		vec4 env_map_rough = env_map * alpha_roughness;
 
-        vec3 diffuse_contrib = diffuse_color * diffuse_function(func_params);
-        vec3 spec_contrib = vec3(F * V * D);
+        vec3 diffuse_contrib = (diffuse_color * env_map_rough.xyz) * diffuse_function(func_params);
+        vec3 spec_contrib = vec3(F * V * D) * env_map_rough.xyz;
         color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib) * shadow;
     }
 
-    color.rgb += diffuse_color * (p3d_LightModel.ambient.rgb * 1.5) * ambient_occlusion;
+    color.rgb += diffuse_color * (p3d_LightModel.ambient.rgb * 1.5) * ambient_occlusion; // * env_map.xyz;
     color.rgb += emission;
 
     // Exponential fog
@@ -165,5 +171,7 @@ void main() {
     float fog_factor = clamp(1.0 / exp(fog_distance * p3d_Fog.density), 0.0, 1.0);
     color = mix(p3d_Fog.color, color, fog_factor);
 
-    o_color = color;
+    //o_color = color * (env_map * 100);
+    //o_color = color * texture(cubemaptex, v);
+	o_color = color;
 }

@@ -1,49 +1,30 @@
 import os
-from panda3d.core import Shader, ShaderAttrib
+from panda3d.core import Shader, ShaderAttrib, TextureStage, TexGenAttrib, NodePath
 
 
 shader_init = True
-scene_shader = ''
-arm_attrib = ''
 
-def apply_shader(node=None, scene=False, skin=False, tracer=False):
+def apply_shader(node=None):
     global shader_init
-    global scene_shader
-    global arm_attrib
 
-    shader_dir = os.path.join(os.path.dirname(__file__), '')
-    
     if shader_init:
         shader_init = False
-    
-        with open(os.path.join(shader_dir, 'pbr_v.vert')) as shaderfile:
-            vert = shaderfile.name
-                
-        with open(os.path.join(shader_dir, 'pbr_f.frag')) as shaderfile:
-            frag = shaderfile.name
 
-        scene_shader = Shader.load(Shader.SL_GLSL, vert, frag)
+        vert = "pbr_shader_v_invert.vert"
+        frag = "pbr_shader_f_invert.frag"
+
+        shader = Shader.load(Shader.SL_GLSL, vert, frag)
         
-        with open(os.path.join(shader_dir, 'pbr_v_arm.vert')) as shaderfile:
-            vert = shaderfile.name
-                
-        with open(os.path.join(shader_dir, 'pbr_f_arm.frag')) as shaderfile:
-            frag = shaderfile.name
+        cube_rig = NodePath('cuberig')
+        cube_buffer = base.win.make_cube_map('cubemap', 1024, cube_rig)
+        cube_rig.reparent_to(base.render)
+        cube_rig.set_pos(5, 5, 0)
+        cube_rig.set_p(-90)
 
-        arm_shader = Shader.load(Shader.SL_GLSL, vert, frag)
-        arm_attrib = ShaderAttrib.make(arm_shader)
-        arm_attrib.set_flag(ShaderAttrib.F_hardware_skinning, True)
-
-    if scene:
-        node.set_shader_off()
-        node.set_shader(scene_shader)
-
-    if skin:
-        node.set_shader_off()
-        node.set_attrib(arm_attrib)
-        
-    if tracer:
-        raise Exception('Tracing is not yet implemented.')
+        node.set_shader(shader)
+        node.set_tex_gen(TextureStage.get_default(), TexGenAttrib.MWorldCubeMap)
+        node.set_shader_input("env_intensity", 50)
+        node.set_shader_input("cubemaptex", cube_buffer.get_texture())
 
 class Shaders:
     def __init__(self):
