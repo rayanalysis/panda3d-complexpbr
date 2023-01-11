@@ -15,7 +15,7 @@ class main(ShowBase):
          super().__init__()
          
          # apply a scene shader with support for realtime environment metal reflections
-		 # node can be base.render or any model node, intensity is the env_map intensity in float
+         # node can be base.render or any model node, intensity is the env_map intensity in float
          complexpbr.apply_shader(node=render,intensity=50)
 ```
 ## Building:
