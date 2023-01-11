@@ -3,6 +3,10 @@
 
 #version 330
 
+#ifndef env_intensity
+    #define env_intensity 50
+#endif
+
 #ifndef MAX_LIGHTS
     #define MAX_LIGHTS 5
 #endif
@@ -118,7 +122,7 @@ void main() {
     float ambient_occlusion = metal_rough.r;
     vec3 emission = p3d_Material.emission.rgb * texture2D(p3d_Texture3, v_texcoord).rgb;
     vec4 color = vec4(vec3(0.0), base_color.a);
-	vec4 env_map = texture(cubemaptex, v) * env_intensity;
+    vec4 env_map = texture(cubemaptex, v) * env_intensity;
 
     for (int i = 0; i < p3d_LightSource.length(); ++i) {
         vec3 lightcol = p3d_LightSource[i].diffuse.rgb;
