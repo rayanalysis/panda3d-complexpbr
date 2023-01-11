@@ -4,7 +4,7 @@ from panda3d.core import Shader, ShaderAttrib, TextureStage, TexGenAttrib, NodeP
 
 shader_init = True
 
-def apply_shader(node=None):
+def apply_shader(node=None,intensity=50):
     global shader_init
 
     if shader_init:
@@ -23,7 +23,7 @@ def apply_shader(node=None):
 
         node.set_shader(shader)
         node.set_tex_gen(TextureStage.get_default(), TexGenAttrib.MWorldCubeMap)
-        node.set_shader_input("env_intensity", 50)
+        node.set_shader_input("env_intensity", intensity)
         node.set_shader_input("cubemaptex", cube_buffer.get_texture())
 
 class Shaders:
