@@ -2,8 +2,6 @@
 
 #version 330
 
-#define GLM_FORCE_SWIZZLE
-
 #ifndef MAX_LIGHTS
     #define MAX_LIGHTS 5
 #endif

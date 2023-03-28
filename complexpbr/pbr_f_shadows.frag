@@ -3,10 +3,6 @@
 
 #version 330
 
-#ifndef env_intensity
-    #define env_intensity 50
-#endif
-
 #ifndef MAX_LIGHTS
     #define MAX_LIGHTS 5
 #endif
@@ -59,9 +55,12 @@ uniform sampler2D p3d_Texture0;
 uniform sampler2D p3d_Texture1;
 uniform sampler2D p3d_Texture2;
 uniform sampler2D p3d_Texture3;
-// get a cubemap
+// get a cubemap from game
 uniform samplerCube cubemaptex;
 uniform float env_intensity;
+// TAA
+uniform sampler2D taa_noise;
+//uniform float noise_jitter;
 
 const vec3 F0 = vec3(0.04);
 const float PI = 3.141592653589793;
@@ -107,6 +106,7 @@ float diffuse_function(FunctionParameters func_params) {
     return 1.0 / PI;
 }
 
+
 void main() {
     vec4 metal_rough = texture2D(p3d_Texture1, v_texcoord);
     float metallic = clamp(p3d_Material.metallic * metal_rough.b, 0.0, 1.0);
@@ -115,14 +115,14 @@ void main() {
     vec4 base_color = p3d_Material.baseColor * v_color * p3d_ColorScale * texture2D(p3d_Texture0, v_texcoord);
     vec3 diffuse_color = (base_color.rgb * (vec3(1.0) - F0)) * (1.0 - metallic);
     vec3 spec_color = mix(F0, base_color.rgb, metallic);
-// Normal Mapping
+    // Normal Mapping
     vec3 n = normalize(v_tbn * (2.0 * texture2D(p3d_Texture2, v_texcoord).rgb - 1.0));
     vec3 v = normalize(-v_position);
 
     float ambient_occlusion = metal_rough.r;
     vec3 emission = p3d_Material.emission.rgb * texture2D(p3d_Texture3, v_texcoord).rgb;
     vec4 color = vec4(vec3(0.0), base_color.a);
-    vec4 env_map = texture(cubemaptex, v) * env_intensity;
+	vec4 env_map = texture(cubemaptex, v) * env_intensity;
 
     for (int i = 0; i < p3d_LightSource.length(); ++i) {
         vec3 lightcol = p3d_LightSource[i].diffuse.rgb;
@@ -155,12 +155,13 @@ void main() {
         func_params.reflection0 = spec_color;
         func_params.diffuse_color = diffuse_color;
         func_params.specular_color = spec_color;
+		
+		vec4 env_map_rough = env_map * alpha_roughness;
 
         vec3 F = specular_reflection(func_params);
         float V = visibility_occlusion(func_params); // V = G / (4 * n_dot_l * n_dot_v)
         float D = microfacet_distribution(func_params);
 
-        vec4 env_map_rough = env_map * alpha_roughness;
         vec3 diffuse_contrib = (diffuse_color * env_map_rough.xyz) * diffuse_function(func_params);
         vec3 spec_contrib = vec3(F * V * D) * env_map_rough.xyz;
         color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib) * shadow;
@@ -168,6 +169,8 @@ void main() {
 
     color.rgb += diffuse_color * (p3d_LightModel.ambient.rgb * 1.5) * ambient_occlusion;
     color.rgb += emission;
+	//vec3 noise_contrib = texture2D(taa_noise, v_texcoord).rgb;
+	//color.rgb = clamp(dot(noise_contrib, color.rgb), 0.0, 1.0);
 
     // Exponential fog
     float fog_distance = length(v_position);
