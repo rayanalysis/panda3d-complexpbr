@@ -64,6 +64,6 @@ void main() {
   
   o_color = vec4(vec3(color.r+outer.r,color.g+outer.g,color.b+outer.b),1.);
   // o_color = vec4(mix(outer/(zig*zig),color,.7),1.);
-  o_color = vec4(mix(outer,color,.7),1.);
+  o_color = vec4(mix(outer,o_color.rgb,.7),1.);
   // o_color = sqrt(o_color);
 }
