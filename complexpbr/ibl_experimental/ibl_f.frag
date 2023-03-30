@@ -176,7 +176,7 @@ void main()
 
         vec3 light_pos = p3d_LightSource[i].position.xyz - v_position * p3d_LightSource[i].position.w;
         vec3 l = normalize(light_pos);
-        vec3 h = normalize(l + v);
+        vec3 h = normalize(l + V);
         float dist = length(light_pos);
         vec3 att_const = p3d_LightSource[i].attenuation;
         float attenuation_factor = 1.0 / (att_const.x + att_const.y + att_const.z * dist);
