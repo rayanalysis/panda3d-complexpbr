@@ -27,7 +27,6 @@ class main(ShowBase):
         
         # initialize complexpbr's implementation of screenspace AA
         # this replaces CommonFilters functionality
-        # as of the current release, window size must be 1920x1080 for sobel_aa()
         complexpbr.sobel_aa()
 
         # if complexpbr.sobel_aa() has not been called, you may use CommonFilters
