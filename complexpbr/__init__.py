@@ -62,6 +62,8 @@ def sobel_aa():
     frag = "min_f.frag"
     shader = Shader.load(Shader.SL_GLSL, vert, frag)
     screen_quad.set_shader(shader)
+    window_size = [base.win.get_x_size(),base.win.get_y_size()]
+    screen_quad.set_shader_input("window_size", window_size)
 
 def apply_shader(node=None,intensity=5):
     global shader_init
