@@ -28,6 +28,13 @@ out vec4 o_color;
 
 const float PI = 3.14159265359;
 
+uniform struct p3d_MaterialParameters {
+    vec4 baseColor;
+    vec4 emission;
+    float roughness;
+    float metallic;
+} p3d_Material;
+
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
@@ -115,13 +122,6 @@ struct FunctionParameters {
     vec3 specular_color;
 };
 
-// Schlick's Fresnel approximation with Spherical Gaussian approximation to replace the power
-vec3 specular_reflection(FunctionParameters func_params) {
-    vec3 f0 = func_params.reflection0;
-    float v_dot_h= func_params.v_dot_h;
-    return f0 + (1 - f0) * pow(2, (-5.55473 * v_dot_h - 6.98316) * v_dot_h);
-}
-
 // Smith GGX with fast sqrt approximation (see https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf/geometricshadowing(specularg))
 float visibility_occlusion(FunctionParameters func_params) {
     float r = func_params.roughness;
@@ -147,24 +147,29 @@ float diffuse_function(FunctionParameters func_params) {
 
 void main()
 {
-    vec3 N = normalize(v_tbn * texture(p3d_Texture2, v_texcoord).rgb * 2.0 - 1.0);
-    vec3 V = normalize(camPos - v_position);
+    vec3 N = normalize(v_tbn * (2.0 * texture2D(p3d_Texture2, v_texcoord).rgb - 1.0));
+    vec3 V = normalize(camPos + v_position);
+	// vec3 V = normalize(-v_position);
 
     // Sample the albedo texture
-    vec3 albedo = texture(p3d_Texture0, v_texcoord).rgb;
+	vec4 albedo = p3d_Material.baseColor * v_color * p3d_ColorScale * texture(p3d_Texture0, v_texcoord);
 
     // Sample the metal-rough texture
-    vec2 metalRough = texture(p3d_Texture1, v_texcoord).rg;
-    float metallic = metalRough.r;
-    float roughness = metalRough.g;
+    vec4 metalRough = texture2D(p3d_Texture1, v_texcoord);
+    float metallic = clamp(p3d_Material.metallic * metalRough.b, 0.0, 1.0);
+    float roughness = clamp(p3d_Material.roughness * metalRough.g,  0.0, 1.0);
+	
+	// Sample the emission texture
+	vec3 emission = p3d_Material.emission.rgb * texture2D(p3d_Texture3, v_texcoord).rgb;
 
     vec3 F0 = vec3(0.04);
-    F0 = mix(F0, albedo, metallic);
+    F0 = mix(F0, albedo.rgb, metallic);
 
-    vec3 diffuse_color = albedo;
+    vec3 diffuse_color = (albedo.rgb * (vec3(1.0) - F0)) * (1.0 - metallic);
     vec3 spec_color = F0;
 
-    vec3 color = vec3(0.0);
+    // vec3 color = vec3(0.0);
+	vec4 color = vec4(vec3(0.0), albedo.a);
 
     // Compute the direct lighting from light sources
     for (int i = 0; i < MAX_LIGHTS; ++i) {
@@ -198,22 +203,15 @@ void main()
         func_params.reflection0 = spec_color;
         func_params.diffuse_color = diffuse_color;
         func_params.specular_color = spec_color;
-		
-		// vec4 env_map_rough = env_map * alpha_roughness;
 
-        vec3 F = specular_reflection(func_params);
         float V = visibility_occlusion(func_params); // V = G / (4 * n_dot_l * n_dot_v)
         float D = microfacet_distribution(func_params);
 
-        vec3 diffuse_contrib = (diffuse_color) * diffuse_function(func_params);
-        vec3 spec_contrib = vec3(F * V * D);
+        vec3 diffuse_contrib = (diffuse_color * p3d_LightModel.ambient.rgb) * diffuse_function(func_params);
+        vec3 spec_contrib = vec3(F0 * V * D);
         color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib) * shadow;
     }
-
+	
     vec3 ibl = getIBL(N, V, F0, diffuse_color, roughness);
-    
-    // Sample the emission texture
-    vec3 emission = texture(p3d_Texture3, v_texcoord).rgb;
-
-    o_color = vec4(ibl + emission + color, 1.0);
+    o_color = vec4(ibl + emission + color.rgb, color.a);
 }
