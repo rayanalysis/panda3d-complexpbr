@@ -1,4 +1,4 @@
-#version 330 core
+#version 330
 
 #ifndef MAX_LIGHTS
     #define MAX_LIGHTS 5
@@ -68,7 +68,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
     return ggx1 * ggx2;
 }
 
-vec3 getIBL(vec3 N, vec3 V, vec3 F0)
+vec3 getIBL(vec3 N, vec3 V, vec3 F0, vec3 diffuse_color)
 {
     vec3 R = reflect(-V, N);
     vec3 kS = fresnelSchlick(max(dot(N, V), 0.0), F0);
@@ -167,7 +167,7 @@ void main()
     vec3 color = vec3(0.0);
 
     // Compute the direct lighting from light sources
-    for (int i = 0; i < p3d_LightSource.length(); ++i) {
+    for (int i = 0; i < MAX_LIGHTS; ++i) {
         vec3 lightcol = p3d_LightSource[i].diffuse.rgb;
 
         if (dot(lightcol, lightcol) < LIGHT_CUTOFF) {
@@ -210,7 +210,7 @@ void main()
         color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib) * shadow;
     }
 
-    vec3 ibl = getIBL(N, V, F0);
+    vec3 ibl = getIBL(N, V, F0, diffuse_color);
     
     // Sample the emission texture
     vec3 emission = texture(p3d_Texture3, v_texcoord).rgb;

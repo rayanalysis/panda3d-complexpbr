@@ -1,4 +1,4 @@
-#version 330 core
+#version 330
 
 #ifndef MAX_LIGHTS
     #define MAX_LIGHTS 5
@@ -44,7 +44,7 @@ void main()
     // Calculate the tangent space matrix
     v_tbn = mat3(tangent, bitangent, normal);
 	
-    for (int i = 0; i < p3d_LightSource.length(); ++i) {
+    for (int i = 0; i < MAX_LIGHTS; ++i) {
         v_shadow_pos[i] = p3d_LightSource[i].shadowViewMatrix * vec4(v_position,1);
     }
 
