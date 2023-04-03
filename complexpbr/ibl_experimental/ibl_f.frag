@@ -68,7 +68,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
     return ggx1 * ggx2;
 }
 
-vec3 getIBL(vec3 N, vec3 V, vec3 F0, vec3 diffuse_color)
+vec3 getIBL(vec3 N, vec3 V, vec3 F0, vec3 diffuse_color, float roughness)
 {
     vec3 R = reflect(-V, N);
     vec3 kS = fresnelSchlick(max(dot(N, V), 0.0), F0);
@@ -210,7 +210,7 @@ void main()
         color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib) * shadow;
     }
 
-    vec3 ibl = getIBL(N, V, F0, diffuse_color);
+    vec3 ibl = getIBL(N, V, F0, diffuse_color, roughness);
     
     // Sample the emission texture
     vec3 emission = texture(p3d_Texture3, v_texcoord).rgb;
