@@ -149,18 +149,18 @@ void main()
 {
     vec3 N = normalize(v_tbn * (2.0 * texture2D(p3d_Texture2, v_texcoord).rgb - 1.0));
     vec3 V = normalize(camPos + v_position);
-	// vec3 V = normalize(-v_position);
+    // vec3 V = normalize(-v_position);
 
     // Sample the albedo texture
-	vec4 albedo = p3d_Material.baseColor * v_color * p3d_ColorScale * texture(p3d_Texture0, v_texcoord);
+    vec4 albedo = p3d_Material.baseColor * v_color * p3d_ColorScale * texture(p3d_Texture0, v_texcoord);
 
     // Sample the metal-rough texture
     vec4 metalRough = texture2D(p3d_Texture1, v_texcoord);
     float metallic = clamp(p3d_Material.metallic * metalRough.b, 0.0, 1.0);
     float roughness = clamp(p3d_Material.roughness * metalRough.g,  0.0, 1.0);
 	
-	// Sample the emission texture
-	vec3 emission = p3d_Material.emission.rgb * texture2D(p3d_Texture3, v_texcoord).rgb;
+    // Sample the emission texture
+    vec3 emission = p3d_Material.emission.rgb * texture2D(p3d_Texture3, v_texcoord).rgb;
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo.rgb, metallic);
@@ -169,7 +169,7 @@ void main()
     vec3 spec_color = F0;
 
     // vec3 color = vec3(0.0);
-	vec4 color = vec4(vec3(0.0), albedo.a);
+    vec4 color = vec4(vec3(0.0), albedo.a);
 
     // Compute the direct lighting from light sources
     for (int i = 0; i < MAX_LIGHTS; ++i) {
