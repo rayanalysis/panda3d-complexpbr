@@ -1,9 +1,11 @@
 # panda3d-complexpbr
-Functional node level scene shader application for Panda3D. complexpbr supports realtime environment reflections for BSDF metals. These reflections are Roughness-mediated. By default, the environment reflections dynamically track the camera view. The option to disable or re-enable dynamic reflections is available.
+Functional node level scene shader application for Panda3D. complexpbr supports realtime environment reflections for BSDF materials. These reflections are implemented with IBL (Image-based lighting) and PBR (Physically Based Rendering) forward shading constructs. 
 
-Now featuring support for Sobel based antialiasing in a screenspace kernel shader. This approximates temporal antialiasing.
+By default, the environment reflections dynamically track the camera view. The option to disable or re-enable dynamic reflections is available. As of the current version, you must copy the provided output_brdf_lut.png or (recommended) create your own BRDF LUT using the provided brdf_lut_calculator.py using an image you provide from your game/program scene. These can be found in the complexpbr folder here.
 
-The goal of this project is to provide extremely easy to use scene shaders to expose the full functionality of Panda3D rendering, including interoperation with CommonFilters and setting shaders on a per-node basis. 
+Also featuring support for Sobel based antialiasing in a screenspace kernel shader. This approximates temporal antialiasing.
+
+The goal of this project is to provide extremely easy to use scene shaders to expose the full functionality of Panda3D rendering, including interoperation with CommonFilters and setting shaders on a per-node basis.
 
 ## Usage:
 ```python
@@ -14,10 +16,11 @@ class main(ShowBase):
     def __init__(self):
         super().__init__()
          
-        # apply a scene shader with support for realtime environment metal reflections
-        # node can be base.render or any model node, intensity is the desired env_map intensity
+        # apply a scene shader with PBR IBL
+        # node can be base.render or any model node, intensity is the desired AO
+		# (ambient occlusion reflection) intensity (float, 0.0 to 1.0)
         
-        complexpbr.apply_shader(self.render,intensity=5)
+        complexpbr.apply_shader(self.render,intensity=0.3)
         
         # make the cubemap rendering static (large performance boost)
         complexpbr.set_cubebuff_inactive()
@@ -50,6 +53,7 @@ pip3 install 'path/to/panda3d-complexpbr.whl'
 To-do.
 
 ## Future Project Goals:
+- Function triggers for building new BRDF LUT samplers in realtime
 - Installation over pip
 
 ## Requirements:
