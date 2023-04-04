@@ -86,10 +86,13 @@ vec3 getIBL(vec3 N, vec3 V, vec3 F0, vec3 diffuse_color, float roughness)
 
     const float MAX_REFLECTION_LOD = 4.0;
 	vec3 prefilteredColor = vec3(0.0);
-	if (roughness < 0.7) 
-		prefilteredColor = textureLod(cubemaptex, R, roughness * MAX_REFLECTION_LOD).rgb;
-	else if (roughness >= 0.7) 
-		prefilteredColor = textureLod(cubemaptex, R, roughness * MAX_REFLECTION_LOD).rgb * vec3(0.04);
+    if (roughness < 0.7) 
+        prefilteredColor = textureLod(cubemaptex, R, roughness * MAX_REFLECTION_LOD).rgb;
+    else if (roughness >= 0.7)
+        if (roughness < 0.9)
+            prefilteredColor = textureLod(cubemaptex, R, roughness * MAX_REFLECTION_LOD).rgb * vec3(0.04);
+    else if (roughness >= 0.9) 
+        prefilteredColor = prefilteredColor;
     vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
 
