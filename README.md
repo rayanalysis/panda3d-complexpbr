@@ -18,9 +18,14 @@ class main(ShowBase):
          
         # apply a scene shader with PBR IBL
         # node can be base.render or any model node, intensity is the desired AO
-		# (ambient occlusion reflection) intensity (float, 0.0 to 1.0)
+        # (ambient occlusion reflection) intensity (float, 0.0 to 1.0)
+        # you may wish to define a specific position in your scene where the 
+        # cube map is rendered from, to IE have multiple skyboxes preloaded
+        # somewhere on the scene graph and have their reflections map to your
+        # models -- to achieve this, set env_cam_pos=Vec3(your_pos)
+        # you may set base.env_cam_pos after this, and it will update in realtime
         
-        complexpbr.apply_shader(self.render,intensity=0.3)
+        complexpbr.apply_shader(self.render,intensity=0.3,env_cam_pos=None)
         
         # make the cubemap rendering static (large performance boost)
         complexpbr.set_cubebuff_inactive()
