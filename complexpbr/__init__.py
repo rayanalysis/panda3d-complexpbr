@@ -46,7 +46,10 @@ def set_cubebuff_active():
 def rotate_cubemap(task):
     c_map = base.render.find('cuberig')
     c_map.set_hpr(base.cam.get_hpr(base.render))
-    c_map.set_pos(base.cam.get_pos(base.render))
+    if base.env_cam_pos is None:
+        c_map.set_pos(base.cam.get_pos(base.render))
+    else:
+        c_map.set_pos(base.env_cam_pos)
 
     return task.cont
 
@@ -64,11 +67,12 @@ def sobel_aa():
     window_size = [base.win.get_x_size(),base.win.get_y_size()]
     screen_quad.set_shader_input("window_size", window_size)
 
-def apply_shader(node=None,intensity=0.5):
+def apply_shader(node=None,intensity=0.5,env_cam_pos=None):
     global shader_init
 
     if shader_init:
         shader_init = False
+        base.env_cam_pos = env_cam_pos
         
         vert = "ibl_v.vert"
         frag = "ibl_f.frag"

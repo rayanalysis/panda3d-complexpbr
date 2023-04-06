@@ -85,7 +85,7 @@ vec3 getIBL(vec3 N, vec3 V, vec3 F0, vec3 diffuse_color, float roughness)
     vec3 diffuse = irradiance * diffuse_color;
 
     const float MAX_REFLECTION_LOD = 4.0;
-	vec3 prefilteredColor = vec3(0.0);
+    vec3 prefilteredColor = vec3(0.0);
     if (roughness < 0.7) 
         prefilteredColor = textureLod(cubemaptex, R, roughness * MAX_REFLECTION_LOD).rgb;
     else if (roughness >= 0.7)
