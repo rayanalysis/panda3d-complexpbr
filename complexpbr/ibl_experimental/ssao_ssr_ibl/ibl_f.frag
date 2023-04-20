@@ -160,9 +160,9 @@ void main()
     vec3 N = normalize(v_tbn * (2.0 * texture2D(p3d_Texture2, v_texcoord).rgb - 1.0));
     vec3 V = normalize(camPos + v_position);
     // vec3 V = normalize(-v_position);
-	
-	// set up the ivec for sending the normal texture to post
-	ivec2 coord = ivec2(v_texcoord * vec2(1600,900));
+    
+    // set up the ivec for sending the normal texture to post
+    ivec2 coord = ivec2(v_texcoord * vec2(1600,900));
 
     // Sample the albedo texture
     vec4 albedo = p3d_Material.baseColor * v_color * p3d_ColorScale * texture(p3d_Texture0, v_texcoord);
@@ -171,7 +171,7 @@ void main()
     vec4 metalRough = texture2D(p3d_Texture1, v_texcoord);
     float metallic = clamp(p3d_Material.metallic * metalRough.b, 0.0, 1.0);
     float roughness = clamp(p3d_Material.roughness * metalRough.g,  0.0, 1.0);
-	
+    
     // Sample the emission texture
     vec3 emission = p3d_Material.emission.rgb * texture2D(p3d_Texture3, v_texcoord).rgb;
 
@@ -224,10 +224,10 @@ void main()
         vec3 spec_contrib = vec3(F0 * V * D);
         color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib) * shadow;
     }
-	
+    
     vec3 ibl = getIBL(N, V, F0, diffuse_color, roughness);
     o_color = vec4(ibl + emission + color.rgb, color.a);
-	// send the normal texture to post
+    // send the normal texture to post
     // imageStore(outputNormalNorm, coord, vec4(texture2D(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5),1));
-	outputNormal = texture2D(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5);
+    outputNormal = texture2D(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5);
 }

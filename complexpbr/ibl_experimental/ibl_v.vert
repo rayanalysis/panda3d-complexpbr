@@ -1,4 +1,4 @@
-#version 330
+#version 430
 
 #ifndef MAX_LIGHTS
     #define MAX_LIGHTS 5
@@ -35,20 +35,19 @@ out vec4 v_shadow_pos[MAX_LIGHTS];
 
 void main()
 {
-    // Transform vertex position and normal to world space
     v_position = vec3(p3d_ModelViewMatrix * p3d_Vertex);
     vec3 normal = normalize(p3d_NormalMatrix * p3d_Normal);
     vec3 tangent = normalize(p3d_NormalMatrix * p3d_Tangent.xyz);
     vec3 bitangent = cross(normal, tangent) * p3d_Tangent.w;
 
-    // Calculate the tangent space matrix
+    // calculate the tangent space matrix
     v_tbn = mat3(tangent, bitangent, normal);
 	
     for (int i = 0; i < MAX_LIGHTS; ++i) {
         v_shadow_pos[i] = p3d_LightSource[i].shadowViewMatrix * vec4(v_position,1);
     }
 
-    // Pass the color, texture coordinates, and clip space position to the fragment shader
+    // pass the color, texture coordinates, and clip space position to the fragment shader
     v_color = p3d_Color;
     v_texcoord = (p3d_TextureMatrix * vec4(p3d_MultiTexCoord0, 0.0, 1.0)).xy;
     gl_Position = p3d_ProjectionMatrix * p3d_ModelViewMatrix * p3d_Vertex;

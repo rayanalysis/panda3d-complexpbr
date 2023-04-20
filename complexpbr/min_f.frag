@@ -5,14 +5,14 @@ uniform vec2 window_size;
 
 mat3 vx = mat3(
     1.,2.,1.,
-	0.,0.,0.,
-	-1.,-2.,-1.
+    0.,0.,0.,
+    -1.,-2.,-1.
 );
 
 mat3 vy = mat3(
     1.,0.,-1.,
-	2.,0.,0.,
-	-1.,-2.,-1.
+    2.,0.,0.,
+    -1.,-2.,-1.
 );
 
 in vec2 texcoord;
@@ -21,7 +21,7 @@ out vec4 o_color;
 
 float normal_blur(in float x, in float sig)
 {
-	return 0.3989*exp(-0.5*x*x/(sig*sig))/sig;
+    return 0.3989*exp(-0.5*x*x/(sig*sig))/sig;
 }
 
 void main() {

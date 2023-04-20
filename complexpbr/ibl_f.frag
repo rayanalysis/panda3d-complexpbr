@@ -165,7 +165,7 @@ void main()
     vec4 metalRough = texture2D(p3d_Texture1, v_texcoord);
     float metallic = clamp(p3d_Material.metallic * metalRough.b, 0.0, 1.0);
     float roughness = clamp(p3d_Material.roughness * metalRough.g,  0.0, 1.0);
-	
+
     // Sample the emission texture
     vec3 emission = p3d_Material.emission.rgb * texture2D(p3d_Texture3, v_texcoord).rgb;
 
@@ -218,7 +218,7 @@ void main()
         vec3 spec_contrib = vec3(F0 * V * D);
         color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib) * shadow;
     }
-	
+
     vec3 ibl = getIBL(N, V, F0, diffuse_color, roughness);
     o_color = vec4(ibl + emission + color.rgb, color.a);
 }
