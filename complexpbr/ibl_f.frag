@@ -155,8 +155,7 @@ float diffuse_function(FunctionParameters func_params) {
 void main()
 {
     vec3 N = normalize(v_tbn * (2.0 * texture2D(p3d_Texture2, v_texcoord).rgb - 1.0));
-    vec3 V = normalize(camPos + v_position);
-    // vec3 V = normalize(-v_position);
+    vec3 V = normalize(-v_position);
 
     // Sample the albedo texture
     vec4 albedo = p3d_Material.baseColor * v_color * p3d_ColorScale * texture(p3d_Texture0, v_texcoord);
