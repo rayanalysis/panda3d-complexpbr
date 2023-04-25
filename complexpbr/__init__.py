@@ -1,5 +1,5 @@
 import os, time
-from panda3d.core import Shader, ShaderAttrib, TextureStage, TexGenAttrib, NodePath, Texture, ATS_none, Vec3
+from panda3d.core import Shader, ShaderAttrib, TextureStage, TexGenAttrib, NodePath, Texture, ATS_none, Vec3, AuxBitplaneAttrib
 from direct.stdpy import threading2
 from direct.filter.FilterManager import FilterManager
 
@@ -45,7 +45,7 @@ def set_cubebuff_active():
 
 def rotate_cubemap(task):
     c_map = base.render.find('cuberig')
-    c_map.set_hpr(base.cam.get_hpr(base.render))
+    c_map.set_h(base.render,base.cam.get_h(base.render))
     if base.env_cam_pos is None:
         c_map.set_pos(base.cam.get_pos(base.render))
     else:
@@ -53,19 +53,35 @@ def rotate_cubemap(task):
 
     return task.cont
 
-def sobel_aa():
+def screenspace_init():
+    auxbits = 0
+    auxbits |= AuxBitplaneAttrib.ABOAuxNormal
+
     filter_manager = FilterManager(base.win, base.cam)
     scene_tex = Texture("scene_tex")
     depth_tex = Texture("depth_tex")
-    screen_quad = filter_manager.render_scene_into(colortex=scene_tex,depthtex=depth_tex)
+    normal_tex = Texture("normal_tex")
+    all_tex = {}
+    screen_quad = filter_manager.render_scene_into(colortex=scene_tex,
+                                                   auxbits=auxbits,
+                                                   depthtex=depth_tex,
+                                                   auxtex=normal_tex,
+                                                   textures=all_tex)
     Texture.set_textures_power_2(ATS_none)
-    
-    vert = "min_v.vert"
-    frag = "min_f.frag"
+    window_size = [base.win.get_x_size(),base.win.get_y_size()]
+    camera_near = base.camLens.get_near()
+    camera_far = base.camLens.get_far()
+
+    vert = "assets/shaders/min_v.vert"
+    frag = "assets/shaders/min_f.frag"
     shader = Shader.load(Shader.SL_GLSL, vert, frag)
     screen_quad.set_shader(shader)
-    window_size = [base.win.get_x_size(),base.win.get_y_size()]
     screen_quad.set_shader_input("window_size", window_size)
+    screen_quad.set_shader_input("scene_tex", scene_tex)
+    screen_quad.set_shader_input("depth_tex", depth_tex)
+    screen_quad.set_shader_input("normal_tex", normal_tex)
+    screen_quad.set_shader_input("cameraNear", camera_near)
+    screen_quad.set_shader_input("cameraFar", camera_far)
 
 def apply_shader(node=None,intensity=0.5,env_cam_pos=None):
     global shader_init
@@ -80,21 +96,21 @@ def apply_shader(node=None,intensity=0.5,env_cam_pos=None):
         shader = Shader.load(Shader.SL_GLSL, vert, frag)
 
         cube_rig = NodePath('cuberig')
-        base.cube_buffer = base.win.make_cube_map('cubemap', 1024, cube_rig)
+        base.cube_buffer = base.win.make_cube_map('cubemap', 256, cube_rig)
         cube_rig.reparent_to(base.render)
-        cube_rig.set_pos(base.cam.get_pos(base.render))
-        cube_rig.set_hpr(base.cam.get_hpr(base.render))
+        cube_rig.set_p(90)
         
         try:
             brdf_lut_tex = loader.load_texture('output_brdf_lut.png')
             shader_cam_pos = Vec3(base.cam.get_pos(base.render))
+            displacement_scale_val = 0.0  # default to 0 to avoid having to check for displacement
 
             node.set_shader(shader)
             node.set_tex_gen(TextureStage.get_default(), TexGenAttrib.MWorldCubeMap)
             node.set_shader_input("cubemaptex", base.cube_buffer.get_texture())
             node.set_shader_input("brdfLUT", brdf_lut_tex)
-            node.set_shader_input("camPos", shader_cam_pos)
             node.set_shader_input("ao", intensity)
+            node.set_shader_input("displacement_scale", displacement_scale_val)
 
             base.task_mgr.add(rotate_cubemap)
             
