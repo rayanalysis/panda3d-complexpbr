@@ -72,8 +72,8 @@ def screenspace_init():
     camera_near = base.camLens.get_near()
     camera_far = base.camLens.get_far()
 
-    vert = "assets/shaders/min_v.vert"
-    frag = "assets/shaders/min_f.frag"
+    vert = "min_v.vert"
+    frag = "min_f.frag"
     shader = Shader.load(Shader.SL_GLSL, vert, frag)
     screen_quad.set_shader(shader)
     screen_quad.set_shader_input("window_size", window_size)
