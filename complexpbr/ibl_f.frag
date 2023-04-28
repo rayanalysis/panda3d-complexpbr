@@ -172,7 +172,7 @@ void main()
     vec4 metalRough = texture2D(p3d_Texture1, v_texcoord);
     float metallic = clamp(p3d_Material.metallic * metalRough.b, 0.0, 1.0);
     float roughness = clamp(p3d_Material.roughness * metalRough.g,  0.0, 1.0);
-	
+    
     // sample the emission texture
     vec3 emission = p3d_Material.emission.rgb * texture2D(p3d_Texture3, v_texcoord).rgb;
 
@@ -185,55 +185,55 @@ void main()
     // vec3 color = vec3(0.0);
     vec4 color = vec4(vec3(0.0), albedo.a);
 
-	// compute the direct lighting from light sources
-	for (int i = 0; i < MAX_LIGHTS; ++i) {
-		vec3 lightcol = p3d_LightSource[i].diffuse.rgb;
+    // compute the direct lighting from light sources
+    for (int i = 0; i < MAX_LIGHTS; ++i) {
+        vec3 lightcol = p3d_LightSource[i].diffuse.rgb;
 
-		if (dot(lightcol, lightcol) < LIGHT_CUTOFF) {
-			continue;
-		}
+        if (dot(lightcol, lightcol) < LIGHT_CUTOFF) {
+            continue;
+        }
 
-		vec3 light_pos = p3d_LightSource[i].position.xyz - v_position * p3d_LightSource[i].position.w;
-		vec3 l = normalize(light_pos);
-		vec3 h = normalize(l + V);
-		float dist = length(light_pos);
-		vec3 att_const = p3d_LightSource[i].attenuation;
-		float attenuation_factor = 1.0 / (att_const.x + att_const.y + att_const.z * dist * dist);
-		float spotcos = dot(normalize(p3d_LightSource[i].spotDirection), -l);
-		float spotcutoff = p3d_LightSource[i].spotCosCutoff;
-		float shadowSpot = smoothstep(spotcutoff-SPOTSMOOTH, spotcutoff+SPOTSMOOTH, spotcos);
+        vec3 light_pos = p3d_LightSource[i].position.xyz - v_position * p3d_LightSource[i].position.w;
+        vec3 l = normalize(light_pos);
+        vec3 h = normalize(l + V);
+        float dist = length(light_pos);
+        vec3 att_const = p3d_LightSource[i].attenuation;
+        float attenuation_factor = 1.0 / (att_const.x + att_const.y + att_const.z * dist * dist);
+        float spotcos = dot(normalize(p3d_LightSource[i].spotDirection), -l);
+        float spotcutoff = p3d_LightSource[i].spotCosCutoff;
+        float shadowSpot = smoothstep(spotcutoff-SPOTSMOOTH, spotcutoff+SPOTSMOOTH, spotcos);
 
-		float shadowCaster = textureProj(p3d_LightSource[i].shadowMap, v_shadow_pos[i]);
-		float shadow = shadowSpot * shadowCaster * attenuation_factor;
+        float shadowCaster = textureProj(p3d_LightSource[i].shadowMap, v_shadow_pos[i]);
+        float shadow = shadowSpot * shadowCaster * attenuation_factor;
 
-		FunctionParameters func_params;
-		func_params.n_dot_l = clamp(dot(N, l), 0.0, 1.0);
-		func_params.n_dot_v = clamp(abs(dot(N, V)), 0.0, 1.0);
-		func_params.n_dot_h = clamp(dot(N, h), 0.0, 1.0);
-		func_params.l_dot_h = clamp(dot(l, h), 0.0, 1.0);
-		func_params.v_dot_h = clamp(dot(V, h), 0.0, 1.0);
-		func_params.roughness = roughness;
-		func_params.metallic =  metallic;
-		func_params.reflection0 = spec_color;
-		func_params.diffuse_color = diffuse_color;
-		func_params.specular_color = spec_color;
+        FunctionParameters func_params;
+        func_params.n_dot_l = clamp(dot(N, l), 0.0, 1.0);
+        func_params.n_dot_v = clamp(abs(dot(N, V)), 0.0, 1.0);
+        func_params.n_dot_h = clamp(dot(N, h), 0.0, 1.0);
+        func_params.l_dot_h = clamp(dot(l, h), 0.0, 1.0);
+        func_params.v_dot_h = clamp(dot(V, h), 0.0, 1.0);
+        func_params.roughness = roughness;
+        func_params.metallic =  metallic;
+        func_params.reflection0 = spec_color;
+        func_params.diffuse_color = diffuse_color;
+        func_params.specular_color = spec_color;
 
-		float V = visibility_occlusion(func_params); // V = G / (4 * n_dot_l * n_dot_v)
-		float D = microfacet_distribution(func_params);
+        float V = visibility_occlusion(func_params); // V = G / (4 * n_dot_l * n_dot_v)
+        float D = microfacet_distribution(func_params);
 
-		vec3 diffuse_contrib = (diffuse_color * p3d_LightModel.ambient.rgb) * diffuse_function(func_params);
-		vec3 spec_contrib = vec3(F0 * V * D);
-		color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib) * shadow;
-	}
-	
+        vec3 diffuse_contrib = (diffuse_color * p3d_LightModel.ambient.rgb) * diffuse_function(func_params);
+        vec3 spec_contrib = vec3(F0 * V * D);
+        color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib) * shadow;
+    }
+    
     vec3 ibl = getIBL(N, V, F0, diffuse_color, roughness);
     o_color = vec4(ibl + emission + color.rgb, color.a);
-	// o_color = vec4(v_tbn * texture2D(p3d_Texture2, v_texcoord).rgb, 1)
-	// o_color = vec4(v_tbn, 1);
-	// o_color = vec4(N, color.a);
-	// send the normal texture to post
+    // o_color = vec4(v_tbn * texture2D(p3d_Texture2, v_texcoord).rgb, 1)
+    // o_color = vec4(v_tbn, 1);
+    // o_color = vec4(N, color.a);
+    // send the normal texture to post
     // imageStore(outputNormalNorm, coord, vec4(texture2D(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5),1));
-	outputNormal = texture2D(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5);
-	// outputNormal = N * 0.5 + vec3(0.5);
-	// outputNormal = N;
+    outputNormal = texture2D(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5);
+    // outputNormal = N * 0.5 + vec3(0.5);
+    // outputNormal = N;
 }

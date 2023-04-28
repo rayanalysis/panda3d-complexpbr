@@ -43,7 +43,7 @@ void main()
     vec3 tangent = normalize(p3d_NormalMatrix * p3d_Tangent.xyz);
     vec3 bitangent = cross(normal, tangent) * p3d_Tangent.w;
     v_tbn = mat3(tangent, bitangent, normal);
-	
+    
     v_color = p3d_Color;
     v_texcoord = (p3d_TextureMatrix * vec4(p3d_MultiTexCoord0, 0.0, 1.0)).xy;
     float displacement = texture(displacement_map, v_texcoord).r * displacement_scale;

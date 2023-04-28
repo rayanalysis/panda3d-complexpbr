@@ -125,9 +125,9 @@ vec3 getViewPos(vec2 uv, float depth)
 {
     vec3 viewPos = vec3(uv * 2.0 - 1.0, depth);
     vec4 worldPos = p3d_ProjectionMatrixInverse * vec4(viewPos, 1.0);
-	worldPos.xyz = worldPos.xyz * 0.006;
+    worldPos.xyz = worldPos.xyz * 0.006;
     return worldPos.xyz / worldPos.w;
-	// return viewPos.xyz / worldPos.w;
+    // return viewPos.xyz / worldPos.w;
 }
 
 vec3 getViewNormal(vec2 uv)
@@ -172,7 +172,7 @@ void main() {
     float reflectionThreshold = 0.4;
     // blend the object color with the reflection color based on the intensity
     color = mix(color, ssrOut.color, max(ssrOut.intensity - reflectionThreshold, 0.0));
-	
+    
     float saturationBoost = 1.3; // adjust this value to control the saturation boost
     vec3 hsvColor = rgb2hsv(color);
     hsvColor.g *= saturationBoost;
@@ -220,9 +220,9 @@ void main() {
 
     o_color = vec4(vec3(color.r + outer.r, color.g + outer.g, color.b + outer.b), 1.);
     o_color = vec4(mix(outer, o_color.rgb, 0.7), 1.);
-	// o_color = vec4(depth_fl,0,0, 1);
-	// o_color = vec4(occlusion, occlusion, occlusion, 1);
-	// o_color = vec4(viewNormal, 1);
-	// o_color = vec4(viewPos.z,0,0, 1);
-	// o_color = vec4(reflection,1);
+    // o_color = vec4(depth_fl,0,0, 1);
+    // o_color = vec4(occlusion, occlusion, occlusion, 1);
+    // o_color = vec4(viewNormal, 1);
+    // o_color = vec4(viewPos.z,0,0, 1);
+    // o_color = vec4(reflection,1);
 }
