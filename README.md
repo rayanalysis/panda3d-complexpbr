@@ -3,7 +3,7 @@ Functional node level scene shader application for Panda3D. complexpbr supports 
 
 Featuring support for vertex displacement mapping, SSAO (Screen Space Ambient Occlusion), SSR (Screen Space Reflections), HSV color correction, and Sobel based antialiasing in a screenspace kernel shader, which approximates temporal antialiasing. complexpbr.screenspace_init() automatically enables the AA, SSAO, SSR, and HSV color correction. To use the vertex displacement mapping, provide your displacement map as a shader input to your respective model node -- example below in the Usage section.
 
-By default, the environment reflections dynamically track the camera view. You may set a custom position with the 'env_cam_pos' apply_shader() input variable to IE fix the view to skybox somewhere on the scene graph. This env_cam_pos variable can be updated live afterwards by setting base.env_cam_pos = Vec3(some_pos). The option to disable or re-enable dynamic reflections is available. 
+By default, the environment reflections dynamically track the camera view. You may set a custom position with the 'env_cam_pos' apply_shader() input variable to IE fix the view to a skybox somewhere on the scene graph. This env_cam_pos variable can be updated live afterwards by setting base.env_cam_pos = Vec3(some_pos). The option to disable or re-enable dynamic reflections is available. 
 
 As of the current version, you must copy the provided output_brdf_lut.png or (recommended) create your own BRDF LUT using the provided brdf_lut_calculator.py using an image you supply from your game/program scene. These can be found in the complexpbr folder here.
 
@@ -30,12 +30,12 @@ class main(ShowBase):
         # you may set base.env_cam_pos after this, and it will update in realtime
         
         complexpbr.apply_shader(self.render,intensity=0.7,env_cam_pos=None)
- 
+
         # initialize complexpbr's screenspace effects (SSAO, SSR, AA, HSV color correction)
         # this replaces CommonFilters functionality
         complexpbr.screenspace_init()
-		
-		# make the cubemap rendering static (performance boost)
+        
+        # make the cubemap rendering static (performance boost)
         complexpbr.set_cubebuff_inactive()
         
         # make the cubemap rendering dynamic (this is the default state)
