@@ -8,7 +8,6 @@ uniform vec2 window_size;
 uniform mat4 p3d_ViewMatrix;
 uniform mat4 p3d_ProjectionMatrixInverse;
 
-uniform samplerBuffer myTBO;
 // SSAO parameters with default values
 const float radius = 0.5;
 const float bias = 0.025;

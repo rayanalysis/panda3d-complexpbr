@@ -41,7 +41,7 @@ class main(ShowBase):
         # make the cubemap rendering dynamic (this is the default state)
         complexpbr.set_cubebuff_active()
 
-        # if complexpbr.sobel_aa() has not been called, you may use CommonFilters
+        # if complexpbr.screenspace_init() has not been called, you may use CommonFilters
         # scene_filters = CommonFilters(base.win, base.cam)
         # scene_filters.set_bloom(size='medium')
         # scene_filters.set_exposure_adjust(1.1)
