@@ -166,7 +166,8 @@ def capture_lut():
     input_image_data = np.array(input_image, dtype=np.uint8)
 
     # set a fixed size for the output texture
-    output_texture_size = 512
+    output_texture_size_1 = 1080
+    output_texture_size_2 = 1920
     
     # calculate the aspect ratio
     aspect_ratio = float(input_image.width) / float(input_image.height)
@@ -192,7 +193,7 @@ def capture_lut():
     # generate the output texture
     output_texture = glGenTextures(1)
     glBindTexture(GL_TEXTURE_2D, output_texture)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, output_texture_size, output_texture_size, 0, GL_RGBA, GL_FLOAT, None)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, output_texture_size_1, output_texture_size_2, 0, GL_RGBA, GL_FLOAT, None)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
@@ -207,12 +208,12 @@ def capture_lut():
     glUniform1i(glGetUniformLocation(shader_program, "inputTexture"), 0)
 
     # render the output texture
-    glViewport(0, 0, output_texture_size, output_texture_size)
+    glViewport(0, 0, output_texture_size_1, output_texture_size_2)
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
     # read the output texture data
-    output_texture_data = glReadPixels(0, 0, output_texture_size, output_texture_size, GL_RGBA, GL_FLOAT)
-    output_texture_data = np.frombuffer(output_texture_data, dtype=np.float32).reshape((output_texture_size, output_texture_size, 4))
+    output_texture_data = glReadPixels(0, 0, output_texture_size_1, output_texture_size_2, GL_RGBA, GL_FLOAT)
+    output_texture_data = np.frombuffer(output_texture_data, dtype=np.float32).reshape((output_texture_size_1, output_texture_size_2, 4))
 
     # save the output texture to a file
     output_texture_image = (np.nan_to_num(output_texture_data) * 65535).astype(np.uint16)  # convert to 16-bit
