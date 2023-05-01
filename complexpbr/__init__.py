@@ -93,34 +93,34 @@ def apply_shader(node=None,intensity=0.5,env_cam_pos=None):
         vert = "ibl_v.vert"
         frag = "ibl_f.frag"
 
-        shader = Shader.load(Shader.SL_GLSL, vert, frag)
+        base.complexpbr_shader = Shader.load(Shader.SL_GLSL, vert, frag)
 
         cube_rig = NodePath('cuberig')
         base.cube_buffer = base.win.make_cube_map('cubemap', 256, cube_rig)
         cube_rig.reparent_to(base.render)
         cube_rig.set_p(90)
         
-        try:
-            brdf_lut_tex = loader.load_texture('output_brdf_lut.png')
-            shader_cam_pos = Vec3(base.cam.get_pos(base.render))
-            displacement_scale_val = 0.0  # default to 0 to avoid having to check for displacement
-            displacement_map = Texture()
+    try:
+        brdf_lut_tex = loader.load_texture('output_brdf_lut.png')
+        shader_cam_pos = Vec3(base.cam.get_pos(base.render))
+        displacement_scale_val = 0.0  # default to 0 to avoid having to check for displacement
+        displacement_map = Texture()
 
-            node.set_shader(shader)
-            node.set_tex_gen(TextureStage.get_default(), TexGenAttrib.MWorldCubeMap)
-            node.set_shader_input("cubemaptex", base.cube_buffer.get_texture())
-            node.set_shader_input("brdfLUT", brdf_lut_tex)
-            node.set_shader_input("ao", intensity)
-            node.set_shader_input("displacement_scale", displacement_scale_val)
-            node.set_shader_input("displacement_map", displacement_map)
+        node.set_shader(base.complexpbr_shader)
+        node.set_tex_gen(TextureStage.get_default(), TexGenAttrib.MWorldCubeMap)
+        node.set_shader_input("cubemaptex", base.cube_buffer.get_texture())
+        node.set_shader_input("brdfLUT", brdf_lut_tex)
+        node.set_shader_input("ao", intensity)
+        node.set_shader_input("displacement_scale", displacement_scale_val)
+        node.set_shader_input("displacement_map", displacement_map)
 
-            base.task_mgr.add(rotate_cubemap)
-            
-        except:
-            ex_text = "You must create the 'output_brdf_lut.png' or copy the complexpbr sample to your program dir."
-            ex_text_2 = '\n\n' + "You may create a custom BRDF LUT with the provided 'brdf_lut_calculator.py' script."
-            ex_text_3 = '\n\n' + "The sample 'output_brdf_lut.png' and the creation script can be found in the panda3d-complexpbr git repo."
-            print(ex_text,ex_text_2,ex_text_3)
+        base.task_mgr.add(rotate_cubemap)
+        
+    except:
+        ex_text = "You must create the 'output_brdf_lut.png' or copy the complexpbr sample to your program dir."
+        ex_text_2 = '\n\n' + "You may create a custom BRDF LUT with the provided 'brdf_lut_calculator.py' script."
+        ex_text_3 = '\n\n' + "The sample 'output_brdf_lut.png' and the creation script can be found in the panda3d-complexpbr git repo."
+        print(ex_text,ex_text_2,ex_text_3)
 
 
 class Shaders:
