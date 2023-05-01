@@ -104,6 +104,7 @@ def apply_shader(node=None,intensity=0.5,env_cam_pos=None):
             brdf_lut_tex = loader.load_texture('output_brdf_lut.png')
             shader_cam_pos = Vec3(base.cam.get_pos(base.render))
             displacement_scale_val = 0.0  # default to 0 to avoid having to check for displacement
+            displacement_map = Texture()
 
             node.set_shader(shader)
             node.set_tex_gen(TextureStage.get_default(), TexGenAttrib.MWorldCubeMap)
@@ -111,6 +112,7 @@ def apply_shader(node=None,intensity=0.5,env_cam_pos=None):
             node.set_shader_input("brdfLUT", brdf_lut_tex)
             node.set_shader_input("ao", intensity)
             node.set_shader_input("displacement_scale", displacement_scale_val)
+            node.set_shader_input("displacement_map", displacement_map)
 
             base.task_mgr.add(rotate_cubemap)
             
