@@ -1,5 +1,4 @@
 #version 430
-#extension GL_ARB_bindless_texture : require
 
 #ifndef MAX_LIGHTS
     #define MAX_LIGHTS 20

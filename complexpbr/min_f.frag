@@ -1,5 +1,4 @@
 #version 430
-#extension GL_ARB_bindless_texture : require
 
 uniform sampler2D scene_tex;  // albedo
 uniform sampler2D depth_tex;  // depth

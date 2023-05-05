@@ -1,5 +1,4 @@
 #version 430
-#extension GL_ARB_bindless_texture : require
 
 uniform mat4 p3d_ModelViewProjectionMatrix;
 

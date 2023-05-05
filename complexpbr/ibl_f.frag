@@ -1,5 +1,4 @@
 #version 430
-#extension GL_ARB_bindless_texture : require
 
 #ifndef MAX_LIGHTS
     #define MAX_LIGHTS 20
@@ -161,20 +160,20 @@ float normal_blur(in float x, in float sig)
 
 void main()
 {
-    vec3 N = normalize(v_tbn * (2.0 * texture2D(p3d_Texture2, v_texcoord).rgb - 1.0));
-    // vec3 N = normalize((2.0 * texture2D(p3d_Texture2, v_texcoord).rgb - 1.0));
+    vec3 N = normalize(v_tbn * (2.0 * texture(p3d_Texture2, v_texcoord).rgb - 1.0));
+    // vec3 N = normalize((2.0 * texture(p3d_Texture2, v_texcoord).rgb - 1.0));
     vec3 V = normalize(-v_position);
 
     // sample the albedo texture
     vec4 albedo = p3d_Material.baseColor * v_color * p3d_ColorScale * texture(p3d_Texture0, v_texcoord);
 
     // sample the metal-rough texture
-    vec4 metalRough = texture2D(p3d_Texture1, v_texcoord);
+    vec4 metalRough = texture(p3d_Texture1, v_texcoord);
     float metallic = clamp(p3d_Material.metallic * metalRough.b, 0.0, 1.0);
     float roughness = clamp(p3d_Material.roughness * metalRough.g,  0.0, 1.0);
     
     // sample the emission texture
-    vec3 emission = p3d_Material.emission.rgb * texture2D(p3d_Texture3, v_texcoord).rgb;
+    vec3 emission = p3d_Material.emission.rgb * texture(p3d_Texture3, v_texcoord).rgb;
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo.rgb, metallic);
@@ -228,12 +227,12 @@ void main()
     
     vec3 ibl = getIBL(N, V, F0, diffuse_color, roughness);
     o_color = vec4(ibl + emission + color.rgb, color.a);
-    // o_color = vec4(v_tbn * texture2D(p3d_Texture2, v_texcoord).rgb, 1)
+    // o_color = vec4(v_tbn * texture(p3d_Texture2, v_texcoord).rgb, 1)
     // o_color = vec4(v_tbn, 1);
     // o_color = vec4(N, color.a);
     // send the normal texture to post
-    // imageStore(outputNormalNorm, coord, vec4(texture2D(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5),1));
-    outputNormal = texture2D(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5);
+    // imageStore(outputNormalNorm, coord, vec4(texture(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5),1));
+    outputNormal = texture(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5);
     // outputNormal = N * 0.5 + vec3(0.5);
     // outputNormal = N;
 }
