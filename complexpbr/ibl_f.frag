@@ -161,18 +161,14 @@ float normal_blur(in float x, in float sig)
 void main()
 {
     vec3 N = normalize(v_tbn * (2.0 * texture(p3d_Texture2, v_texcoord).rgb - 1.0));
-    // vec3 N = normalize((2.0 * texture(p3d_Texture2, v_texcoord).rgb - 1.0));
     vec3 V = normalize(-v_position);
 
-    // sample the albedo texture
     vec4 albedo = p3d_Material.baseColor * v_color * p3d_ColorScale * texture(p3d_Texture0, v_texcoord);
 
-    // sample the metal-rough texture
     vec4 metalRough = texture(p3d_Texture1, v_texcoord);
     float metallic = clamp(p3d_Material.metallic * metalRough.b, 0.0, 1.0);
-    float roughness = clamp(p3d_Material.roughness * metalRough.g,  0.0, 1.0);
+    float roughness = clamp(p3d_Material.roughness * metalRough.g, 0.0, 1.0);
     
-    // sample the emission texture
     vec3 emission = p3d_Material.emission.rgb * texture(p3d_Texture3, v_texcoord).rgb;
 
     vec3 F0 = vec3(0.04);
@@ -181,8 +177,10 @@ void main()
     vec3 diffuse_color = (albedo.rgb * (vec3(1.0) - F0)) * (1.0 - metallic);
     vec3 spec_color = F0;
 
-    // vec3 color = vec3(0.0);
     vec4 color = vec4(vec3(0.0), albedo.a);
+
+    // initialize crepuscularFactor
+    float crepuscularFactor = 0.0;
 
     // compute the direct lighting from light sources
     for (int i = 0; i < MAX_LIGHTS; ++i) {
@@ -216,23 +214,25 @@ void main()
         func_params.reflection0 = spec_color;
         func_params.diffuse_color = diffuse_color;
         func_params.specular_color = spec_color;
+        // add the shadow information to the crepuscularFactor
+        crepuscularFactor += shadow * func_params.n_dot_l;
 
-        float V = visibility_occlusion(func_params); // V = G / (4 * n_dot_l * n_dot_v)
+        float V = visibility_occlusion(func_params);
         float D = microfacet_distribution(func_params);
 
         vec3 diffuse_contrib = (diffuse_color * p3d_LightModel.ambient.rgb) * diffuse_function(func_params);
         vec3 spec_contrib = vec3(F0 * V * D);
         color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib) * shadow;
     }
-    
+
+    // normalize the crepuscularFactor
+    crepuscularFactor /= float(MAX_LIGHTS);
+
     vec3 ibl = getIBL(N, V, F0, diffuse_color, roughness);
     o_color = vec4(ibl + emission + color.rgb, color.a);
-    // o_color = vec4(v_tbn * texture(p3d_Texture2, v_texcoord).rgb, 1)
-    // o_color = vec4(v_tbn, 1);
-    // o_color = vec4(N, color.a);
-    // send the normal texture to post
-    // imageStore(outputNormalNorm, coord, vec4(texture(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5),1));
+    
+    // apply the crepuscularFactor to the final output color
+    o_color.rgb *= crepuscularFactor;
+
     outputNormal = texture(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5);
-    // outputNormal = N * 0.5 + vec3(0.5);
-    // outputNormal = N;
 }
