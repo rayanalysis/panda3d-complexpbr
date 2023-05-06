@@ -1,7 +1,7 @@
 # panda3d-complexpbr
 Functional node level scene shader application for Panda3D. complexpbr supports realtime environment reflections for BSDF materials. These reflections are implemented with IBL (Image-based lighting) and PBR (Physically Based Rendering) forward shading constructs. Your machine must support GLSL version 430 or higher. Sample screenshots below.
 
-Featuring support for vertex displacement mapping, SSAO (Screen Space Ambient Occlusion), SSR (Screen Space Reflections), HSV color correction, and Sobel based antialiasing in a screenspace kernel shader, which approximates temporal antialiasing. complexpbr.screenspace_init() automatically enables the AA, SSAO, SSR, and HSV color correction. To use the vertex displacement mapping, provide your displacement map as a shader input to your respective model node -- example below in the Usage section.
+Featuring support for vertex displacement mapping, SSAO (Screen Space Ambient Occlusion), SSR (Screen Space Reflections), HSV color correction, Bloom, and Sobel based antialiasing in a screenspace kernel shader, which approximates temporal antialiasing. complexpbr.screenspace_init() automatically enables the AA, SSAO, SSR, and HSV color correction. To use the vertex displacement mapping, provide your displacement map as a shader input to your respective model node -- example below in the Usage section.
 
 By default, the environment reflections dynamically track the camera view. You may set a custom position with the 'env_cam_pos' apply_shader() input variable to IE fix the view to a skybox somewhere on the scene graph. This env_cam_pos variable can be updated live afterwards by setting base.env_cam_pos = Vec3(some_pos). The option to disable or re-enable dynamic reflections is available. 
 
@@ -40,13 +40,6 @@ class main(ShowBase):
         
         # make the cubemap rendering dynamic (this is the default state)
         complexpbr.set_cubebuff_active()
-
-        # if complexpbr.screenspace_init() has not been called, you may use CommonFilters
-        # scene_filters = CommonFilters(base.win, base.cam)
-        # scene_filters.set_bloom(size='medium')
-        # scene_filters.set_exposure_adjust(1.1)
-        # scene_filters.set_gamma_adjust(1.1)
-        # scene_filters.set_blur_sharpen(0.9)
         
         # example of how to use the vertex displacement mapping
         wood_sphere_3 = loader.load_model('assets/models/wood_sphere_3.gltf')
@@ -56,6 +49,37 @@ class main(ShowBase):
         dis_tex.read('assets/textures/WoodFloor057_2K-PNG/WoodFloor057_2K_Displacement.png')
         wood_sphere_3.set_shader_input('displacement_map',dis_tex)
         wood_sphere_3.set_shader_input('displacement_scale',0.01)
+        
+        # example of how to set up bloom -- complexpbr.screenspace_init() must have been called first
+        screen_quad = base.screen_quad
+        
+        bloom_intensity = 5.0  # bloom defaults to 0.0 / off
+        bloom_blur_width = 10
+        bloom_samples = 6
+        bloom_threshold = 0.7
+
+        screen_quad.set_shader_input("bloom_intensity", bloom_intensity)
+        screen_quad.set_shader_input("bloom_threshold", bloom_threshold)
+        screen_quad.set_shader_input("bloom_blur_width", bloom_blur_width)
+        screen_quad.set_shader_input("bloom_samples", bloom_samples)
+        
+        # example of how to customize SSR
+        ssr_intensity = 0.5
+        ssr_step = 4.0
+        ssr_fresnel_pow = 3.0
+        ssr_samples = 128
+        
+        screen_quad.set_shader_input("ssr_intensity", ssr_intensity)
+        screen_quad.set_shader_input("ssr_step", ssr_step)
+        screen_quad.set_shader_input("ssr_fresnel_pow", ssr_fresnel_pow)
+        screen_quad.set_shader_input("ssr_samples", ssr_samples)
+        
+        # if complexpbr.screenspace_init() has not been called, you may use CommonFilters
+        # scene_filters = CommonFilters(base.win, base.cam)
+        # scene_filters.set_bloom(size='medium')
+        # scene_filters.set_exposure_adjust(1.1)
+        # scene_filters.set_gamma_adjust(1.1)
+        # scene_filters.set_blur_sharpen(0.9)
 ```
 ## Building:
 

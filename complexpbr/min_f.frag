@@ -11,8 +11,23 @@ uniform mat4 p3d_ProjectionMatrixInverse;
 const float radius = 0.5;
 const float bias = 0.025;
 
+// Bloom
+uniform float bloom_intensity;
+uniform float bloom_threshold;
+uniform int bloom_blur_width;
+uniform int bloom_samples;
+
+// SSR
+uniform float ssr_intensity;
+uniform float ssr_step;
+uniform float ssr_fresnel_pow;
+uniform int ssr_samples;
+
 uniform float cameraNear;
 uniform float cameraFar;
+
+in vec2 texcoord;
+out vec4 o_color;
 
 mat3 vx = mat3(
     1.,2.,1.,
@@ -25,10 +40,6 @@ mat3 vy = mat3(
     2.,0.,0.,
     -1.,-2.,-1.
 );
-
-in vec2 texcoord;
-
-out vec4 o_color;
 
 float hash(float n)
 {
@@ -52,6 +63,11 @@ float normal_blur(in float x, in float sig)
     return 0.3989*exp(-0.5*x*x/(sig*sig))/sig;
 }
 
+float luminance(vec3 color)
+{
+    return dot(color, vec3(0.299, 0.587, 0.114));
+}
+
 struct SSRout {
     vec3 color;
     float intensity;
@@ -62,17 +78,16 @@ SSRout screenSpaceReflection(vec2 uv, float linearDepth, vec3 normal)
     vec3 viewPos = vec3(uv, linearDepth);
     viewPos = (p3d_ProjectionMatrixInverse * vec4(viewPos, 1.0)).xyz;
     vec3 reflect_color = vec3(0.0);
-    float reflect_intensity = 0.5;
 
     vec3 reflectedRay = reflect(normalize(viewPos), normal);
     vec3 screenSpaceRay = (p3d_ProjectionMatrixInverse * vec4(reflectedRay, 0.0)).xyz;
     screenSpaceRay.xy /= screenSpaceRay.z;
 
-    float stepSize = 0.5;
-    vec2 rayStep = screenSpaceRay.xy * stepSize;
+    float ssr_step = 0.75;
+    vec2 rayStep = screenSpaceRay.xy * ssr_step;
     vec2 rayPosition = uv;
 
-    for (int i = 0; i < 64; i++)
+    for (int i = 0; i < ssr_samples; i++)
     {
         rayPosition -= rayStep;
         rayPosition = clamp(rayPosition, vec2(0.0), vec2(1.0));
@@ -81,18 +96,17 @@ SSRout screenSpaceReflection(vec2 uv, float linearDepth, vec3 normal)
         vec3 position = vec3(rayPosition * 2.0 - 1.0, depth);
         position = (p3d_ProjectionMatrixInverse * vec4(position, 1.0)).xyz;
 
-        if (abs(viewPos.z - position.z) < stepSize)
+        if (abs(viewPos.z - position.z) < ssr_step)
         {
-            float fresnel = pow(1.0 - dot(normal, normalize(viewPos)), 5.0);
+            float fresnel = pow(1.0 - dot(normal, normalize(viewPos)), ssr_fresnel_pow);
             vec3 color = texture(scene_tex, rayPosition).rgb;
             reflect_color = mix(reflect_color, color, fresnel);
-            reflect_intensity = max(reflect_intensity, fresnel);
         }
     }
 
     SSRout result;
     result.color = reflect_color;
-    result.intensity = reflect_intensity;
+    result.intensity = ssr_intensity;
     return result;
 }
 
@@ -125,7 +139,6 @@ vec3 getViewPos(vec2 uv, float depth)
     vec4 worldPos = p3d_ProjectionMatrixInverse * vec4(viewPos, 1.0);
     worldPos.xyz = worldPos.xyz * 0.006;
     return worldPos.xyz / worldPos.w;
-    // return viewPos.xyz / worldPos.w;
 }
 
 vec3 getViewNormal(vec2 uv)
@@ -158,6 +171,77 @@ vec3 hsv2rgb(vec3 c) {
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
+float brightness(vec3 color)
+{
+    const vec3 W = vec3(0.2126, 0.7152, 0.0722);
+    return dot(color, W);
+}
+
+vec3 bloomAA(vec3 color, vec2 uv)
+{
+    vec3 bloom = vec3(0.0);
+    vec3 aa_contrib = vec3(0.0);
+    vec2 texelSize = 1.0 / window_size;
+    int aaBlurWidth = 10;
+    float totalBlurWeight = 0.0;
+
+    if (bloom_intensity > 0)
+    {
+        for (int i = -bloom_samples; i <= bloom_samples; ++i)
+        {
+            for (int j = -bloom_samples; j <= bloom_samples; ++j)
+            {
+                vec2 offset = vec2(i, j) * texelSize;
+                vec3 bloom_sample = texture(scene_tex, uv + offset).rgb;
+
+                float brightness_value = brightness(bloom_sample);
+                float intensity = brightness_value > bloom_threshold ? brightness_value : 0.0;
+                float blur = normal_blur(length(offset), bloom_blur_width);
+                bloom += bloom_sample * intensity * bloom_intensity * blur;
+                totalBlurWeight += blur;
+            }
+        }
+
+        // normalize bloom effect
+        bloom /= totalBlurWeight;
+    }
+    
+    // AA loop
+    mat3 Inter;
+    
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            vec2 offset = (vec2(i - 1, j - 1) * texelSize);
+            vec3 aa_sample = texture(scene_tex, uv + offset).rgb;
+            Inter[i][j] = length(aa_sample);
+        }
+    }
+
+    // calculate AA response
+    float fx = dot(vx[0], Inter[0]) + dot(vx[1], Inter[1]) + dot(vx[2], Inter[2]);
+    float fy = dot(vy[0], Inter[0]) + dot(vy[1], Inter[1]) + dot(vy[2], Inter[2]);
+    float fo = sqrt(pow(fx, 2.) + pow(fy, 2.));
+    fo = smoothstep(0.1, 0.7, fo);
+
+    float kern[11];
+    for (int w = 0; w <= 5; w++) {
+        kern[5 + w] = kern[5 - w] = normal_blur(float(w), aaBlurWidth);
+    }
+
+    for (int i = 0; i <= 5; i++) {
+        for (int z = 0; z <= 5; z++) {
+            aa_contrib += kern[5 + z] * kern[5 + i] * texture(scene_tex, (uv + (vec2(float(i), float(z)) * texelSize))).rgb * vec3(fo);
+        }
+    }
+
+    // combine bloom and AA contributions
+    vec3 combined = color + bloom + aa_contrib;
+
+    return combined;
+}
+
 void main() {
     vec3 color = texture(scene_tex, texcoord).rgb;
     vec4 depth = texture(depth_tex, texcoord);
@@ -180,47 +264,5 @@ void main() {
     float occlusion = ssao(texcoord, viewPos, viewNormal);
     color *= occlusion;
 
-    mat3 Inter;
-
-    vec2 texelSize = 1.0 / window_size;
-
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            vec3 sobel = texture(scene_tex, texcoord + (vec2(i - 1, j - 1) * texelSize)).rgb;
-            Inter[i][j] = length(sobel);
-        }
-    }
-
-    float kern[11];
-
-    vec3 outer = vec3(0.);
-    float sig = 10.;
-    float zig = 0.;
-
-    for (int w = 0; w <= 5; w++) {
-        kern[5 + w] = kern[5 - w] = normal_blur(float(w), sig);
-    }
-
-    for (int i = 0; i < 5; i++) {
-        zig += kern[i];
-    }
-
-    float fx = dot(vx[0], Inter[0]) + dot(vx[1], Inter[1]) + dot(vx[2], Inter[2]);
-    float fy = dot(vy[0], Inter[0]) + dot(vy[1], Inter[1]) + dot(vy[2], Inter[2]);
-    float fo = sqrt(pow(fx, 2.) + pow(fy, 2.));
-    fo = smoothstep(0.1, 0.7, fo);
-
-    for (int i = 0; i <= 5; i++) {
-        for (int z = 0; z <= 5; z++) {
-            outer += kern[5 + z] * kern[5 + i] * texture(scene_tex, (texcoord + (vec2(float(i), float(z)) * texelSize))).rgb * vec3(fo);
-        }
-    }
-
-    o_color = vec4(vec3(color.r + outer.r, color.g + outer.g, color.b + outer.b), 1.);
-    o_color = vec4(mix(outer, o_color.rgb, 0.7), 1.);
-    // o_color = vec4(depth_fl,0,0, 1);
-    // o_color = vec4(occlusion, occlusion, occlusion, 1);
-    // o_color = vec4(viewNormal, 1);
-    // o_color = vec4(viewPos.z,0,0, 1);
-    // o_color = vec4(reflection,1);
+    o_color = vec4(bloomAA(color, texcoord), 1.0);
 }

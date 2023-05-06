@@ -71,6 +71,14 @@ def screenspace_init():
     window_size = [base.win.get_x_size(),base.win.get_y_size()]
     camera_near = base.camLens.get_near()
     camera_far = base.camLens.get_far()
+    bloom_intensity = 0.0  # default bloom to 0.0 / off
+    bloom_blur_width = 10
+    bloom_samples = 6
+    bloom_threshold = 0.7
+    ssr_intensity = 0.5
+    ssr_step = 4.0
+    ssr_fresnel_pow = 3.0
+    ssr_samples = 128
 
     vert = "min_v.vert"
     frag = "min_f.frag"
@@ -82,6 +90,16 @@ def screenspace_init():
     screen_quad.set_shader_input("normal_tex", normal_tex)
     screen_quad.set_shader_input("cameraNear", camera_near)
     screen_quad.set_shader_input("cameraFar", camera_far)
+    screen_quad.set_shader_input("bloom_intensity", bloom_intensity)
+    screen_quad.set_shader_input("bloom_threshold", bloom_threshold)
+    screen_quad.set_shader_input("bloom_blur_width", bloom_blur_width)
+    screen_quad.set_shader_input("bloom_samples", bloom_samples)
+    screen_quad.set_shader_input("ssr_intensity", ssr_intensity)
+    screen_quad.set_shader_input("ssr_step", ssr_step)
+    screen_quad.set_shader_input("ssr_fresnel_pow", ssr_fresnel_pow)
+    screen_quad.set_shader_input("ssr_samples", ssr_samples)
+    
+    base.screen_quad = screen_quad
 
 def apply_shader(node=None,intensity=0.5,env_cam_pos=None):
     global shader_init
