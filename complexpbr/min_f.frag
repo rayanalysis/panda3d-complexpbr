@@ -82,6 +82,7 @@ SSRout screenSpaceReflection(vec2 uv, float linearDepth, vec3 normal)
     vec3 reflectedRay = reflect(normalize(viewPos), normal);
     vec3 screenSpaceRay = (p3d_ProjectionMatrixInverse * vec4(reflectedRay, 0.0)).xyz;
     screenSpaceRay.xy /= screenSpaceRay.z;
+    screenSpaceRay.x = 0.0;
 
     float ssr_step = 0.75;
     vec2 rayStep = screenSpaceRay.xy * ssr_step;
