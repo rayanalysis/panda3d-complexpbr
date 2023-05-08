@@ -46,6 +46,7 @@ def set_cubebuff_active():
 def rotate_cubemap(task):
     c_map = base.render.find('cuberig')
     c_map.set_h(base.render,base.cam.get_h(base.render))
+    c_map.set_p(base.render,base.cam.get_p(base.render) + 90)
     if base.env_cam_pos is None:
         c_map.set_pos(base.cam.get_pos(base.render))
     else:
