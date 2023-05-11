@@ -32,8 +32,9 @@ class main(ShowBase):
         # somewhere on the scene graph and have their reflections map to your
         # models -- to achieve this, set env_cam_pos=Vec3(your_pos)
         # you may set base.env_cam_pos after this, and it will update in realtime
+        # env_res is the cube map resolution, can only be set once upon first call
         
-        complexpbr.apply_shader(self.render,intensity=0.7,env_cam_pos=None)
+        complexpbr.apply_shader(self.render,intensity=0.7,env_cam_pos=None,env_res=256)
 
         # initialize complexpbr's screenspace effects (SSAO, SSR, AA, HSV color correction)
         # this replaces CommonFilters functionality

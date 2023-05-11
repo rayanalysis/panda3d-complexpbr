@@ -102,7 +102,7 @@ def screenspace_init():
     
     base.screen_quad = screen_quad
 
-def apply_shader(node=None,intensity=0.5,env_cam_pos=None):
+def apply_shader(node=None,intensity=0.5,env_cam_pos=None,env_res=256):
     global shader_init
 
     if shader_init:
@@ -115,7 +115,7 @@ def apply_shader(node=None,intensity=0.5,env_cam_pos=None):
         base.complexpbr_shader = Shader.load(Shader.SL_GLSL, vert, frag)
 
         cube_rig = NodePath('cuberig')
-        base.cube_buffer = base.win.make_cube_map('cubemap', 256, cube_rig)
+        base.cube_buffer = base.win.make_cube_map('cubemap', env_res, cube_rig)
         cube_rig.reparent_to(base.render)
         cube_rig.set_p(90)
         
