@@ -21,6 +21,7 @@ in vec2 v_texcoord;
 in vec4 v_shadow_pos[MAX_LIGHTS];
 
 uniform float ao;
+uniform float specular_factor;
 
 const float LIGHT_CUTOFF = 0.001;
 const float SPOTSMOOTH = 0.1;
@@ -96,8 +97,9 @@ vec3 getIBL(vec3 N, vec3 V, vec3 F0, vec3 diffuse_color, float roughness)
         prefilteredColor = prefilteredColor;
     vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
+    vec3 ao_final = (kD * diffuse + specular) * ao;
 
-    return (kD * diffuse + specular) * ao;
+    return (ao_final * (specular * specular_factor));
 }
 
 uniform struct p3d_LightSourceParameters {

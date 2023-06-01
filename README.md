@@ -83,6 +83,10 @@ class main(ShowBase):
         screen_quad.set_shader_input("ssr_fresnel_pow", ssr_fresnel_pow)
         screen_quad.set_shader_input("ssr_samples", ssr_samples)
         
+        # example of how to modify the specular contribution
+        # the specular_factor defaults to 1.0
+        self.render.set_shader_input("specular_factor", 10.0)
+        
         # if complexpbr.screenspace_init() has not been called, you may use CommonFilters
         # scene_filters = CommonFilters(base.win, base.cam)
         # scene_filters.set_bloom(size='medium')

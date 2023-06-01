@@ -124,6 +124,7 @@ def apply_shader(node=None,intensity=0.5,env_cam_pos=None,env_res=256):
         shader_cam_pos = Vec3(base.cam.get_pos(base.render))
         displacement_scale_val = 0.0  # default to 0 to avoid having to check for displacement
         displacement_map = Texture()
+        specular_factor = 1.0
 
         node.set_shader(base.complexpbr_shader)
         node.set_tex_gen(TextureStage.get_default(), TexGenAttrib.MWorldCubeMap)
@@ -132,6 +133,7 @@ def apply_shader(node=None,intensity=0.5,env_cam_pos=None,env_res=256):
         node.set_shader_input("ao", intensity)
         node.set_shader_input("displacement_scale", displacement_scale_val)
         node.set_shader_input("displacement_map", displacement_map)
+        node.set_shader_input("specular_factor", specular_factor)
 
         base.task_mgr.add(rotate_cubemap)
         
