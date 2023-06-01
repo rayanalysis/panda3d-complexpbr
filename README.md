@@ -13,11 +13,10 @@ The goal of this project is to provide extremely easy to use scene shaders to ex
 
 ![helmet_3](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/47ab57e8-180c-46e6-a8c2-289bb59edccd)
 
-![sponza_screen_1-Thu-Jun-01-08-16-18-2023-26](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/ac0fddf1-d7ab-4c2e-a8fe-da96a0e34035)
+![sponza_screen_1-Thu-Jun-01-08-16-18-2023-26](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/5d6a603f-9da1-49a1-affb-042658f343ed)
 
-![sponza_screen_1-Thu-Jun-01-08-17-47-2023-15](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/3dbe2d77-0cec-4e79-b5a4-e779e34fd98e)
+![sponza_screen_1-Thu-Jun-01-08-17-47-2023-15](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/7fffc0f4-75b3-476b-a328-127d231b9171)
 
-![complexpbr_bloom_screen_1](https://user-images.githubusercontent.com/3117958/236596857-4469be04-f9ab-4f84-9566-fe4bb5c0b201.png)
 
 ## Usage:
 ```python
@@ -114,16 +113,10 @@ To-do.
 ## Requirements:
 
 - panda3d
+- 
+![sponza_screen_1-Thu-Jun-01-08-28-36-2023-104](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/4e40e642-f363-4328-bf99-4056f449e28a)
 
-![sponza_screen_1-Thu-Jun-01-05-39-29-2023-111](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/9401bdd4-ed00-46a1-baa1-d542a090374f)
-
-![sponza_screen_1-Thu-Jun-01-05-55-48-2023-540](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/cd7b84e1-d1c1-479b-88ef-62b791476b2e)
-
-![sponza_screen_2-Thu-Jun-01-05-40-36-2023-262](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/4c668524-430c-4157-9f1a-1881006bb2a1)
-
-![sponza_screen_2-Thu-Jun-01-05-56-06-2023-591](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/f9ef5d69-a248-4f08-a152-8f3a7cd7cbf5)
-
-![sponza_screen_3-Thu-Jun-01-05-56-32-2023-657](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/0c8a149a-e8c9-47de-b4d3-d7c36c5da97a)
+![sponza_screen_2-Thu-Jun-01-08-23-21-2023-1500](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/9fbe97e8-d350-480e-bbca-9ef2d5a92b24)
 
 ![complexpbr_daytime_screen_1](https://user-images.githubusercontent.com/3117958/235431990-d8ea4364-2526-4739-963c-dce122815f2a.png)
 
