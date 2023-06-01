@@ -132,7 +132,3 @@ Vertex Displacement Mapping:
 
 ![complexpbr_screen_4](https://user-images.githubusercontent.com/3117958/234434178-1e14fa32-2be4-4072-ae15-9ee235d8c036.png)
 
-SSR:
-
-![complexpbr_screen_7](https://user-images.githubusercontent.com/3117958/234434222-f903c22c-dcd5-4d7b-be25-b7f4bf2f927d.png)
-
