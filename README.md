@@ -13,9 +13,9 @@ The goal of this project is to provide extremely easy to use scene shaders to ex
 
 ![helmet_3](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/47ab57e8-180c-46e6-a8c2-289bb59edccd)
 
-![sponza_screen_1-Thu-Jun-01-08-03-05-2023-51](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/3dc0cfd7-d3a5-47b5-929f-f33bf0718506)
+![sponza_screen_1-Thu-Jun-01-08-16-18-2023-26](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/ac0fddf1-d7ab-4c2e-a8fe-da96a0e34035)
 
-![sponza_screen_1-Thu-Jun-01-08-04-56-2023-20](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/36b76bb6-f31b-4a95-8fae-3b22fe1696d3)
+![sponza_screen_1-Thu-Jun-01-08-17-47-2023-15](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/3dbe2d77-0cec-4e79-b5a4-e779e34fd98e)
 
 ![complexpbr_bloom_screen_1](https://user-images.githubusercontent.com/3117958/236596857-4469be04-f9ab-4f84-9566-fe4bb5c0b201.png)
 
