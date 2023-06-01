@@ -113,7 +113,7 @@ To-do.
 ## Requirements:
 
 - panda3d
-- 
+
 ![sponza_screen_1-Thu-Jun-01-08-28-36-2023-104](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/4e40e642-f363-4328-bf99-4056f449e28a)
 
 ![sponza_screen_2-Thu-Jun-01-08-23-21-2023-1500](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/9fbe97e8-d350-480e-bbca-9ef2d5a92b24)
