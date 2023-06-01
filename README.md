@@ -13,6 +13,8 @@ The goal of this project is to provide extremely easy to use scene shaders to ex
 
 ![helmet_3](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/47ab57e8-180c-46e6-a8c2-289bb59edccd)
 
+![sponza_screen_1-Thu-Jun-01-06-02-59-2023-22](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/6074d5c1-10fe-4c18-8808-55fef5b2a5f8)
+
 ![complexpbr_screen_1](https://user-images.githubusercontent.com/3117958/234433982-3462b601-fd37-464f-a173-dc151d93643a.png)
 
 ![complexpbr_bloom_screen_1](https://user-images.githubusercontent.com/3117958/236596857-4469be04-f9ab-4f84-9566-fe4bb5c0b201.png)
@@ -108,6 +110,16 @@ To-do.
 ## Requirements:
 
 - panda3d
+
+![sponza_screen_1-Thu-Jun-01-05-39-29-2023-111](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/9401bdd4-ed00-46a1-baa1-d542a090374f)
+
+![sponza_screen_1-Thu-Jun-01-05-55-48-2023-540](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/cd7b84e1-d1c1-479b-88ef-62b791476b2e)
+
+![sponza_screen_2-Thu-Jun-01-05-40-36-2023-262](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/4c668524-430c-4157-9f1a-1881006bb2a1)
+
+![sponza_screen_2-Thu-Jun-01-05-56-06-2023-591](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/f9ef5d69-a248-4f08-a152-8f3a7cd7cbf5)
+
+![sponza_screen_3-Thu-Jun-01-05-56-32-2023-657](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/0c8a149a-e8c9-47de-b4d3-d7c36c5da97a)
 
 ![complexpbr_daytime_screen_1](https://user-images.githubusercontent.com/3117958/235431990-d8ea4364-2526-4739-963c-dce122815f2a.png)
 
