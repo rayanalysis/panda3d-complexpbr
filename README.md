@@ -21,6 +21,8 @@ The goal of this project is to provide extremely easy to use scene shaders to ex
 
 ![sponza_screen_2-Thu-Jun-01-05-56-06-2023-591](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/b5055164-3235-48fa-86a7-0f6e3222b903)
 
+![sponza_screen_1-Fri-Jun-02-08-54-07-2023-428](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/7a5c3f1f-1bb9-4dec-9e92-92dc52f77f29)
+
 ## Usage:
 ```python
 from direct.showbase.ShowBase import ShowBase
