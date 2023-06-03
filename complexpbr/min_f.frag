@@ -23,6 +23,9 @@ uniform float ssr_step;
 uniform float ssr_fresnel_pow;
 uniform int ssr_samples;
 
+// SSAO
+uniform int ssao_samples;
+
 uniform float cameraNear;
 uniform float cameraFar;
 
@@ -116,7 +119,7 @@ float ssao(in vec2 uv, in vec3 viewPos, in vec3 viewNormal)
     float occlusion = 0.0;
     float sampleDepth;
 
-    for (int i = 0; i < 32; ++i)
+    for (int i = 0; i < ssao_samples; ++i)
     {
         vec3 randomSampleVec = randomSample(i, uv);
         vec3 samplePosOffset = radius * (viewNormal * randomSampleVec.z + vec3(randomSampleVec.xy * vec2(radius), 0.0));

@@ -80,6 +80,7 @@ def screenspace_init():
     ssr_step = 4.0
     ssr_fresnel_pow = 3.0
     ssr_samples = 128
+    ssao_samples = 32
 
     vert = "min_v.vert"
     frag = "min_f.frag"
@@ -99,6 +100,7 @@ def screenspace_init():
     screen_quad.set_shader_input("ssr_step", ssr_step)
     screen_quad.set_shader_input("ssr_fresnel_pow", ssr_fresnel_pow)
     screen_quad.set_shader_input("ssr_samples", ssr_samples)
+    screen_quad.set_shader_input("ssao_samples", ssao_samples)
     
     base.screen_quad = screen_quad
 

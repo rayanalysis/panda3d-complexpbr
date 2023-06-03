@@ -85,6 +85,11 @@ class main(ShowBase):
         screen_quad.set_shader_input("ssr_fresnel_pow", ssr_fresnel_pow)
         screen_quad.set_shader_input("ssr_samples", ssr_samples)
         
+        # example of how to customize SSAO
+        ssao_samples = 128  # ssao_samples defaults to 32
+        
+        screen_quad.set_shader_input("ssao_samples", ssao_samples)
+        
         # example of how to modify the specular contribution
         # the specular_factor defaults to 1.0
         self.render.set_shader_input("specular_factor", 10.0)
