@@ -79,7 +79,7 @@ def screenspace_init():
     ssr_intensity = 0.5
     ssr_step = 4.0
     ssr_fresnel_pow = 3.0
-    ssr_samples = 128
+    ssr_samples = 0
     ssao_samples = 32
 
     vert = "min_v.vert"
