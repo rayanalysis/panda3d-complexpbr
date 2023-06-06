@@ -96,6 +96,13 @@ class main(ShowBase):
         # the specular_factor defaults to 1.0
         self.render.set_shader_input("specular_factor", 10.0)
         
+        # example of how to set the overall reflection contribution
+        # on a per-model or node basis
+        low_r_model = loader.load_model('assets/models/low_r_model.gltf')
+        # 'ao' is the complexpbr shader input
+        low_r_model.set_shader_input('ao',0.1)
+        low_r_model.reparent_to(base.render)
+        
         # if complexpbr.screenspace_init() has not been called, you may use CommonFilters
         # scene_filters = CommonFilters(base.win, base.cam)
         # scene_filters.set_bloom(size='medium')
