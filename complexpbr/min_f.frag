@@ -150,6 +150,7 @@ vec3 getViewPos(vec2 uv, float depth)
 {
     vec3 viewPos = vec3(uv * 2.0 - 1.0, depth);
     vec4 worldPos = p3d_ProjectionMatrixInverse * vec4(viewPos, 1.0);
+    worldPos.xyz = worldPos.xyz * 0.0011;
     return worldPos.xyz / worldPos.w;
 }
 
@@ -280,4 +281,5 @@ void main() {
     color *= occlusion;
 
     o_color = vec4(bloomAA(color, texcoord), 1.0);
+    // o_color = vec4(occlusion, 0, 0, 1.0);
 }
