@@ -26,10 +26,19 @@ uniform int ssr_samples;
 // SSAO
 uniform int ssao_samples;
 
+// camera
 uniform float cameraNear;
 uniform float cameraFar;
 
+// screenspace-level global reflection intensity
+uniform float reflection_threshold;
+
 in vec2 texcoord;
+in vec3 tbn_tangent;
+in vec3 tbn_bitangent;
+in vec3 tbn_normal;
+in vec3 vertex_pos_view;
+
 out vec4 o_color;
 
 mat3 vx = mat3(
@@ -61,7 +70,7 @@ vec3 randomSample(int i, vec2 uv)
     return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
 }
 
-float normal_blur(in float x, in float sig)
+float normalBlur(in float x, in float sig)
 {
     return 0.3989*exp(-0.5*x*x/(sig*sig))/sig;
 }
@@ -145,18 +154,22 @@ vec3 getViewPos(vec2 uv, float depth)
     return worldPos.xyz / worldPos.w;
 }
 
-vec3 getViewNormal(vec2 uv)
+mat3 getNormalMatrix(mat4 viewMatrix) 
 {
-    vec3 normalTex = texture(normal_tex, uv).rgb;
-    vec3 viewNormal = normalize(normalTex * 2.0 - 1.0);
-
-    return viewNormal;
+    return transpose(inverse(mat3(viewMatrix)));
 }
 
-vec3 transformNormalToViewSpace(vec3 worldNormal)
+vec3 transformNormalToViewSpace(vec3 tangentSpaceNormal) 
 {
-    mat3 normalMatrix = transpose(inverse(mat3(p3d_ViewMatrix)));
-    return normalMatrix * worldNormal;
+    return normalize(getNormalMatrix(p3d_ViewMatrix) * tangentSpaceNormal);
+}
+
+vec3 getViewNormal(vec3 tbn_tangent, vec3 tbn_bitangent, vec3 tbn_normal) 
+{
+    vec3 normalTex = texture(normal_tex, texcoord).rgb * 2.0 - 1.0;
+    vec3 tangentSpaceNormal = normalize(tbn_tangent * normalTex.x + tbn_bitangent * normalTex.y + tbn_normal * normalTex.z);
+
+    return normalize(transformNormalToViewSpace(tangentSpaceNormal));
 }
 
 vec3 rgb2hsv(vec3 c) {
@@ -200,7 +213,7 @@ vec3 bloomAA(vec3 color, vec2 uv)
 
                 float brightness_value = brightness(bloom_sample);
                 float intensity = brightness_value > bloom_threshold ? brightness_value : 0.0;
-                float blur = normal_blur(length(offset), bloom_blur_width);
+                float blur = normalBlur(length(offset), bloom_blur_width);
                 bloom += bloom_sample * intensity * bloom_intensity * blur;
                 totalBlurWeight += blur;
             }
@@ -231,7 +244,7 @@ vec3 bloomAA(vec3 color, vec2 uv)
 
     float kern[11];
     for (int w = 0; w <= 5; w++) {
-        kern[5 + w] = kern[5 - w] = normal_blur(float(w), aaBlurWidth);
+        kern[5 + w] = kern[5 - w] = normalBlur(float(w), aaBlurWidth);
     }
 
     for (int i = 0; i <= 5; i++) {
@@ -251,13 +264,12 @@ void main() {
     vec4 depth = texture(depth_tex, texcoord);
     float depth_fl = 1.0 - depth.r + 0.5;
     vec3 viewPos = getViewPos(texcoord, depth_fl);
-    vec3 worldNormal = getViewNormal(texcoord);
+    vec3 worldNormal = getViewNormal(tbn_tangent, tbn_bitangent, tbn_normal);
     vec3 viewNormal = transformNormalToViewSpace(worldNormal);
 
     SSRout ssrOut = screenSpaceReflection(texcoord, depth_fl, viewNormal);
-    float reflectionThreshold = 0.4;
     // blend the object color with the reflection color based on the intensity
-    color = mix(color, ssrOut.color, max(ssrOut.intensity - reflectionThreshold, 0.0));
+    color = mix(color, ssrOut.color, max(ssrOut.intensity - reflection_threshold, 0.0));
     
     float saturationBoost = 1.3; // adjust this value to control the saturation boost
     vec3 hsvColor = rgb2hsv(color);

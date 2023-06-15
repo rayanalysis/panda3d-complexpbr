@@ -5,7 +5,7 @@ Featuring support for vertex displacement mapping, SSAO (Screen Space Ambient Oc
 
 By default, the environment reflections dynamically track the camera view. You may set a custom position with the 'env_cam_pos' apply_shader() input variable to IE fix the view to a skybox somewhere on the scene graph. This env_cam_pos variable can be updated live afterwards by setting base.env_cam_pos = Vec3(some_pos). The option to disable or re-enable dynamic reflections is available. 
 
-As of the current version, you must copy the provided output_brdf_lut.png or (recommended) create your own BRDF LUT using the provided brdf_lut_calculator.py using an image you supply from your game/program scene. These can be found in the complexpbr folder here.
+As of version 0.5.2, complexpbr will default to a dummy BDRF LUT which it creates on the fly. complexpbr will remind you that you may create a custom BRDF LUT with the provided 'brdf_lut_calculator.py' script. The sample 'output_brdf_lut.png' and the creation script can be found in the panda3d-complexpbr git repo. For advanced users there is an option to set the LUT image RGB fill values via apply_shader(lut_fill=[r,g,b]) . See Usage section for an example.
 
 The goal of this project is to provide extremely easy to use scene shaders to expose the full functionality of Panda3D rendering, including interoperation with CommonFilters and setting shaders on a per-node basis.
 
@@ -96,12 +96,8 @@ class main(ShowBase):
         # the specular_factor defaults to 1.0
         self.render.set_shader_input("specular_factor", 10.0)
         
-        # example of how to set the overall reflection contribution
-        # on a per-model or node basis
-        low_r_model = loader.load_model('assets/models/low_r_model.gltf')
-        # 'ao' is the complexpbr shader input
-        low_r_model.set_shader_input('ao',0.1)
-        low_r_model.reparent_to(base.render)
+        # example of how to directly fill your BRDF LUT texture instead of providing one in your game folder
+        complexpbr.apply_shader(base.render, 1.0, env_res=1024, lut_fill=[1.0,0.0,0.0])  # lut_fill=[red, green, blue]
         
         # if complexpbr.screenspace_init() has not been called, you may use CommonFilters
         # scene_filters = CommonFilters(base.win, base.cam)
