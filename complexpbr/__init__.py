@@ -81,7 +81,7 @@ def screenspace_init():
     ssr_step = 4.0
     ssr_fresnel_pow = 3.0
     ssr_samples = 0  # default SSR to 0.0 / off
-    ssao_samples = 32
+    ssao_samples = 8
     reflection_threshold = 1.0
 
     vert = "min_v.vert"
