@@ -42,7 +42,11 @@ class main(ShowBase):
         # you may set base.env_cam_pos after this, and it will update in realtime
         # env_res is the cube map resolution, can only be set once upon first call
         
-        complexpbr.apply_shader(self.render,intensity=0.7,env_cam_pos=None,env_res=256)
+        complexpbr.apply_shader(self.render)
+        # complexpbr.screenspace_init()  # optional, starts the screenspace effects
+        
+        # apply_shader() with optional inputs
+        # complexpbr.apply_shader(self.render, intensity=0.9, env_cam_pos=None, env_res=256, lut_fill=[1.0,0.0,0.0])
 
         # initialize complexpbr's screenspace effects (SSAO, SSR, AA, HSV color correction)
         # this replaces CommonFilters functionality
@@ -60,8 +64,8 @@ class main(ShowBase):
         wood_sphere_3.set_pos(0,0,1)
         dis_tex = Texture()
         dis_tex.read('assets/textures/WoodFloor057_2K-PNG/WoodFloor057_2K_Displacement.png')
-        wood_sphere_3.set_shader_input('displacement_map',dis_tex)
-        wood_sphere_3.set_shader_input('displacement_scale',0.01)
+        wood_sphere_3.set_shader_input('displacement_map', dis_tex)
+        wood_sphere_3.set_shader_input('displacement_scale', 0.1)
         
         # example of how to set up bloom -- complexpbr.screenspace_init() must have been called first
         screen_quad = base.screen_quad
@@ -77,10 +81,10 @@ class main(ShowBase):
         screen_quad.set_shader_input("bloom_samples", bloom_samples)
         
         # example of how to customize SSR
-        ssr_intensity = 0.5
+        ssr_intensity = 0.5  
         ssr_step = 4.0
         ssr_fresnel_pow = 3.0
-        ssr_samples = 128
+        ssr_samples = 128  # ssr_samples defaults to 0 / off
         
         screen_quad.set_shader_input("ssr_intensity", ssr_intensity)
         screen_quad.set_shader_input("ssr_step", ssr_step)
@@ -88,13 +92,12 @@ class main(ShowBase):
         screen_quad.set_shader_input("ssr_samples", ssr_samples)
         
         # example of how to customize SSAO
-        ssao_samples = 128  # ssao_samples defaults to 32
+        ssao_samples = 32  # ssao_samples defaults to 8
         
         screen_quad.set_shader_input("ssao_samples", ssao_samples)
         
         # example of how to modify the specular contribution
-        # the specular_factor defaults to 1.0
-        self.render.set_shader_input("specular_factor", 10.0)
+        self.render.set_shader_input("specular_factor", 10.0)  # the specular_factor defaults to 1.0
         
         # example of how to directly fill your BRDF LUT texture instead of providing one in your game folder
         complexpbr.apply_shader(base.render, 1.0, env_res=1024, lut_fill=[1.0,0.0,0.0])  # lut_fill=[red, green, blue]
