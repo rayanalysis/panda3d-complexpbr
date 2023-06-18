@@ -1,5 +1,7 @@
 import os, time
-from panda3d.core import Shader, ShaderAttrib, TextureStage, TexGenAttrib, NodePath, Texture, ATS_none, Vec3, AuxBitplaneAttrib, PNMImage
+from panda3d.core import Shader, ShaderAttrib, TextureStage, TexGenAttrib, NodePath
+from panda3d.core import Texture, ATS_none, Vec3, AuxBitplaneAttrib, PNMImage, AntialiasAttrib
+from panda3d.core import load_prc_file_data
 from direct.stdpy import threading2
 from direct.filter.FilterManager import FilterManager
 
@@ -106,8 +108,18 @@ def screenspace_init():
     screen_quad.set_shader_input("reflection_threshold", reflection_threshold)
     
     base.screen_quad = screen_quad
+    base.render.set_antialias(AntialiasAttrib.MMultisample)
 
 def complexpbr_rig_init(node, intensity, lut_fill):
+    load_prc_file_data('', 'hardware-animated-vertices #t')
+    load_prc_file_data('', 'framebuffer-srgb #t')
+    load_prc_file_data('', 'framebuffer-multisample 1')
+    load_prc_file_data('', 'multisamples 4')
+    load_prc_file_data('', 'framebuffer-depth-32 1')
+    load_prc_file_data('', 'gl-depth-zero-to-one #f')
+    load_prc_file_data('', 'gl-cube-map-seamless 1')
+    load_prc_file_data('', 'hardware-animated-vertices #t')
+    
     brdf_lut_tex = Texture("complexpbr_lut")
     brdf_lut_image = PNMImage()
     brdf_lut_image.clear(x_size=base.win.get_x_size(), y_size=base.win.get_y_size(), num_channels=4)
@@ -129,6 +141,7 @@ def complexpbr_rig_init(node, intensity, lut_fill):
     specular_factor = 1.0
 
     node.set_shader(base.complexpbr_shader)
+
     node.set_tex_gen(TextureStage.get_default(), TexGenAttrib.MWorldCubeMap)
     node.set_shader_input("cubemaptex", base.cube_buffer.get_texture())
     node.set_shader_input("brdfLUT", brdf_lut_tex)
@@ -138,6 +151,12 @@ def complexpbr_rig_init(node, intensity, lut_fill):
     node.set_shader_input("specular_factor", specular_factor)
 
     base.task_mgr.add(rotate_cubemap)
+
+    base.complexpbr_skin_attrib = ShaderAttrib.make(base.complexpbr_shader)
+    base.complexpbr_skin_attrib = base.complexpbr_skin_attrib.set_flag(ShaderAttrib.F_hardware_skinning, True)
+
+def skin(node):
+    node.set_attrib(base.complexpbr_skin_attrib)
 
 def apply_shader(node=None, intensity=1.0, env_cam_pos=None, env_res=256, lut_fill=[1.0,0.0,0.0]):
     global cpbr_shader_init

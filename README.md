@@ -7,6 +7,8 @@ By default, the environment reflections dynamically track the camera view. You m
 
 As of version 0.5.2, complexpbr will default to a dummy BRDF LUT which it creates on the fly. complexpbr will remind you that you may create a custom BRDF LUT with the provided 'brdf_lut_calculator.py' script or copy the sample one provided. This feature is automatic, so if you provide the output_brdf_lut.png file in your program directory, it will default to that .png image ignoring the lut_fill input. The sample 'output_brdf_lut.png' and the creation script can be found in the panda3d-complexpbr git repo. For advanced users there is an option to set the LUT image RGB fill values via apply_shader(lut_fill=[r,g,b]) . See Usage section for an example of lut_fill.
 
+As of version 0.5.3, hardware skinning support is provided via complexpbr.skin(your_actor) for models with skeletal animations. See Usage section for an example of hardware skinning.
+
 The goal of this project is to provide extremely easy to use scene shaders to expose the full functionality of Panda3D rendering, including interoperation with CommonFilters and setting shaders on a per-node basis.
 
 ![complexpbr_screen_2](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/a8a7d360-6b52-4fa8-91f8-31f052421043)
@@ -57,7 +59,14 @@ class main(ShowBase):
         
         # make the cubemap rendering dynamic (this is the default state)
         complexpbr.set_cubebuff_active()
-        
+
+        # example of how to apply hardware skinning
+        fp_character = actor_data.player_character  # this is an Actor() model
+        fp_character.reparent_to(self.render)
+        fp_character.set_scale(1)
+        # set hardware skinning for the Actor()
+        complexpbr.skin(fp_character)
+
         # example of how to use the vertex displacement mapping
         wood_sphere_3 = loader.load_model('assets/models/wood_sphere_3.gltf')
         wood_sphere_3.reparent_to(base.render)
