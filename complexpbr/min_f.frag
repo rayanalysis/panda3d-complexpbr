@@ -26,6 +26,11 @@ uniform int ssr_samples;
 // SSAO
 uniform int ssao_samples;
 
+// HSV
+uniform float hsv_r = 1.0;
+uniform float hsv_g = 1.0;
+uniform float hsv_b = 1.0;
+
 // camera
 uniform float cameraNear;
 uniform float cameraFar;
@@ -270,10 +275,9 @@ void main() {
     SSRout ssrOut = screenSpaceReflection(texcoord, depth_fl, viewNormal);
     // blend the object color with the reflection color based on the intensity
     color = mix(color, ssrOut.color, max(ssrOut.intensity - reflection_threshold, 0.0));
-    
-    float saturationBoost = 1.3; // adjust this value to control the saturation boost
+
     vec3 hsvColor = rgb2hsv(color);
-    hsvColor.g *= saturationBoost;
+    hsvColor *= vec3(hsv_r, hsv_g, hsv_b);
     color = hsv2rgb(hsvColor);
 
     // apply SSAO to the final color

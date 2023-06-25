@@ -85,6 +85,9 @@ def screenspace_init():
     ssr_samples = 0  # default SSR to 0.0 / off
     ssao_samples = 8
     reflection_threshold = 1.0
+    hsv_r = 1.0
+    hsv_g = 1.0
+    hsv_b = 1.0
 
     vert = "min_v.vert"
     frag = "min_f.frag"
@@ -106,6 +109,9 @@ def screenspace_init():
     screen_quad.set_shader_input("ssr_samples", ssr_samples)
     screen_quad.set_shader_input("ssao_samples", ssao_samples)
     screen_quad.set_shader_input("reflection_threshold", reflection_threshold)
+    screen_quad.set_shader_input("hsv_r", hsv_r)
+    screen_quad.set_shader_input("hsv_g", hsv_g)  # HSV saturation adjustment
+    screen_quad.set_shader_input("hsv_b", hsv_b)
     
     base.screen_quad = screen_quad
     base.render.set_antialias(AntialiasAttrib.MMultisample)
@@ -113,12 +119,11 @@ def screenspace_init():
 def complexpbr_rig_init(node, intensity, lut_fill):
     load_prc_file_data('', 'hardware-animated-vertices #t')
     load_prc_file_data('', 'framebuffer-srgb #t')
-    load_prc_file_data('', 'framebuffer-multisample 1')
-    load_prc_file_data('', 'multisamples 4')
     load_prc_file_data('', 'framebuffer-depth-32 1')
     load_prc_file_data('', 'gl-depth-zero-to-one #f')
     load_prc_file_data('', 'gl-cube-map-seamless 1')
-    load_prc_file_data('', 'hardware-animated-vertices #t')
+    load_prc_file_data('', 'framebuffer-multisample 1')
+    load_prc_file_data('', 'multisamples 4')
     
     brdf_lut_tex = Texture("complexpbr_lut")
     brdf_lut_image = PNMImage()
@@ -131,9 +136,7 @@ def complexpbr_rig_init(node, intensity, lut_fill):
         brdf_lut_tex = loader.load_texture('output_brdf_lut.png')
     except:
         ex_text = "complexpbr message: Defaulting to dummy LUT."
-        ex_text_2 = '\n\n' + "You may create a custom BRDF LUT with the provided 'brdf_lut_calculator.py' script."
-        ex_text_3 = '\n\n' + "The sample 'output_brdf_lut.png' and the creation script can be found in the panda3d-complexpbr git repo."
-        print(ex_text,ex_text_2,ex_text_3)
+        print(ex_text)
         
     shader_cam_pos = Vec3(base.cam.get_pos(base.render))
     displacement_scale_val = 0.0  # default to 0 to avoid having to check for displacement

@@ -105,6 +105,9 @@ class main(ShowBase):
         
         screen_quad.set_shader_input("ssao_samples", ssao_samples)
         
+        # example of how to HSV adjust the final image
+        screen_quad.set_shader_input("hsv_g", 1.3)  # hsv_g (saturation factor) defaults to 1.0
+        
         # example of how to modify the specular contribution
         self.render.set_shader_input("specular_factor", 10.0)  # the specular_factor defaults to 1.0
         
