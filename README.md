@@ -23,6 +23,8 @@ The goal of this project is to provide extremely easy to use scene shaders to ex
 
 ![bistro_exterior_10](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/79df6bd6-14d8-4d19-ae5f-45c3418a7607)
 
+6/1/23 Sponza ([Intel GPU Research Samples](https://www.intel.com/content/www/us/en/developer/topic-technology/graphics-research/samples.html))
+
 ![sponza_screen_1-Thu-Jun-01-08-16-18-2023-26](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/5d6a603f-9da1-49a1-affb-042658f343ed)
 
 ![sponza_screen_1-Thu-Jun-01-08-17-47-2023-15](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/7fffc0f4-75b3-476b-a328-127d231b9171)
