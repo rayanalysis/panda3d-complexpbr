@@ -5,37 +5,56 @@ from panda3d.core import load_prc_file_data
 from direct.stdpy import threading2
 from direct.filter.FilterManager import FilterManager
 
+
 cpbr_shader_init = True
 shader_dir = os.path.join(os.path.dirname(__file__), '')
 
+with open(os.path.join(shader_dir, 'ibl_v.vert')) as shaderfile:
+    shaderstr = shaderfile.read()
+    out_v = open('ibl_v.vert','w')
+    out_v.write(shaderstr)
+    out_v.close()
+
+with open(os.path.join(shader_dir, 'ibl_f.frag')) as shaderfile:
+    shaderstr = shaderfile.read()
+    out_v = open('ibl_f.frag','w')
+    out_v.write(shaderstr)
+    out_v.close()
+
+with open(os.path.join(shader_dir, 'min_v.vert')) as shaderfile:
+    shaderstr = shaderfile.read()
+    out_v = open('min_v.vert','w')
+    out_v.write(shaderstr)
+    out_v.close()
+
+with open(os.path.join(shader_dir, 'min_f.frag')) as shaderfile:
+    shaderstr = shaderfile.read()
+    out_v = open('min_f.frag','w')
+    out_v.write(shaderstr)
+    out_v.close()
 
 def set_cubebuff_inactive():
     def set_thread():
         time.sleep(.5)
         base.cube_buffer.set_active(0)
-
-    return threading2._start_new_thread(set_thread, ())
-
+    return threading2._start_new_thread(set_thread,())
 
 def set_cubebuff_active():
     def set_thread():
         time.sleep(.5)
         base.cube_buffer.set_active(1)
-
-    return threading2._start_new_thread(set_thread, ())
-
+    return threading2._start_new_thread(set_thread,())
 
 def rotate_cubemap(task):
     c_map = base.render.find('cuberig')
-    c_map.set_h(base.render, base.cam.get_h(base.render))
-    c_map.set_p(base.render, base.cam.get_p(base.render) + 90)
+    c_map.set_h(base.render,base.cam.get_h(base.render))
+    c_map.set_p(base.render,base.cam.get_p(base.render) + 90)
     if base.env_cam_pos is None:
         c_map.set_pos(base.cam.get_pos(base.render))
     else:
         c_map.set_pos(base.env_cam_pos)
 
     return task.cont
-
 
 def screenspace_init():
     auxbits = 0
@@ -52,10 +71,10 @@ def screenspace_init():
                                                    auxtex=normal_tex,
                                                    textures=all_tex)
     Texture.set_textures_power_2(ATS_none)
-    window_size = [base.win.get_x_size(), base.win.get_y_size()]
+    window_size = [base.win.get_x_size(),base.win.get_y_size()]
     camera_near = base.camLens.get_near()
     camera_far = base.camLens.get_far()
-
+    
     bloom_intensity = 0.0  # default Bloom to 0.0 / off
     bloom_blur_width = 10
     bloom_samples = 6
@@ -70,8 +89,8 @@ def screenspace_init():
     hsv_g = 1.0
     hsv_b = 1.0
 
-    vert = os.path.join(shader_dir, "min_v.vert")
-    frag = os.path.join(shader_dir, "min_f.frag")
+    vert = "min_v.vert"
+    frag = "min_f.frag"
     shader = Shader.load(Shader.SL_GLSL, vert, frag)
     screen_quad.set_shader(shader)
     screen_quad.set_shader_input("window_size", window_size)
@@ -93,10 +112,9 @@ def screenspace_init():
     screen_quad.set_shader_input("hsv_r", hsv_r)
     screen_quad.set_shader_input("hsv_g", hsv_g)  # HSV saturation adjustment
     screen_quad.set_shader_input("hsv_b", hsv_b)
-
+    
     base.screen_quad = screen_quad
     base.render.set_antialias(AntialiasAttrib.MMultisample)
-
 
 def complexpbr_rig_init(node, intensity, lut_fill):
     load_prc_file_data('', 'hardware-animated-vertices #t')
@@ -106,20 +124,20 @@ def complexpbr_rig_init(node, intensity, lut_fill):
     load_prc_file_data('', 'gl-cube-map-seamless 1')
     load_prc_file_data('', 'framebuffer-multisample 1')
     load_prc_file_data('', 'multisamples 4')
-
+    
     brdf_lut_tex = Texture("complexpbr_lut")
     brdf_lut_image = PNMImage()
     brdf_lut_image.clear(x_size=base.win.get_x_size(), y_size=base.win.get_y_size(), num_channels=4)
-    brdf_lut_image.fill(red=lut_fill[0], green=lut_fill[1], blue=lut_fill[2])
+    brdf_lut_image.fill(red=lut_fill[0],green=lut_fill[1],blue=lut_fill[2])
     # brdf_lut_image.alpha_fill(1.0)
     brdf_lut_tex.load(brdf_lut_image)
-
+    
     try:
-        brdf_lut_tex = loader.load_texture(os.path.join(shader_dir, 'output_brdf_lut.png'))
+        brdf_lut_tex = loader.load_texture('output_brdf_lut.png')
     except:
         ex_text = "complexpbr message: Defaulting to dummy LUT."
         print(ex_text)
-
+        
     shader_cam_pos = Vec3(base.cam.get_pos(base.render))
     displacement_scale_val = 0.0  # default to 0 to avoid having to check for displacement
     displacement_map = Texture()
@@ -140,20 +158,18 @@ def complexpbr_rig_init(node, intensity, lut_fill):
     base.complexpbr_skin_attrib = ShaderAttrib.make(base.complexpbr_shader)
     base.complexpbr_skin_attrib = base.complexpbr_skin_attrib.set_flag(ShaderAttrib.F_hardware_skinning, True)
 
-
 def skin(node):
     node.set_attrib(base.complexpbr_skin_attrib)
 
-
-def apply_shader(node=None, intensity=1.0, env_cam_pos=None, env_res=256, lut_fill=[1.0, 0.0, 0.0]):
+def apply_shader(node=None, intensity=1.0, env_cam_pos=None, env_res=256, lut_fill=[1.0,0.0,0.0]):
     global cpbr_shader_init
 
     if cpbr_shader_init:
         cpbr_shader_init = False
         base.env_cam_pos = env_cam_pos
-
-        vert = os.path.join(shader_dir, "ibl_v.vert")
-        frag = os.path.join(shader_dir, "ibl_f.frag")
+        
+        vert = "ibl_v.vert"
+        frag = "ibl_f.frag"
 
         base.complexpbr_shader = Shader.load(Shader.SL_GLSL, vert, frag)
 
