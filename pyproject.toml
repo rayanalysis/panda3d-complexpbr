@@ -1,0 +1,36 @@
+[build-system]
+requires = [
+    "setuptools >= 61",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "panda3d-complexpbr"
+dynamic = ["version"]
+authors = [
+    {name = "Logan Bier"}
+]
+description = "Functional node level shader application for Panda3D"
+readme = "README.md"
+keywords = ["panda3d", "gamedev", "pbr"]
+license = {text = "BSD-3-Clause"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "panda3d >= 1.10.8",
+    "typing_extensions ~= 4.7",
+]
+requires-python = ">= 3.10"
+
+[project.urls]
+homepage = "https://github.com/rayanalysis/panda3d-complexpbr"
+
+[tool.setuptools.dynamic]
+version = {attr = "complexpbr.version.__version__"}
+
+[tool.setuptools]
+packages = ["complexpbr"]
