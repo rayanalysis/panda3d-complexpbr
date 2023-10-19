@@ -6,8 +6,8 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
+version = "0.5.3"
 name = "panda3d-complexpbr"
-dynamic = ["version"]
 authors = [
     {name = "Logan Bier"}
 ]
@@ -28,9 +28,6 @@ requires-python = ">= 3.10"
 
 [project.urls]
 homepage = "https://github.com/rayanalysis/panda3d-complexpbr"
-
-[tool.setuptools.dynamic]
-version = {attr = "complexpbr.version.__version__"}
 
 [tool.setuptools]
 packages = ["complexpbr"]
