@@ -131,18 +131,20 @@ class main(ShowBase):
         # scene_filters.set_gamma_adjust(1.1)
         # scene_filters.set_blur_sharpen(0.9)
 ```
-## Building:
-
-The module may be built using setuptools. 
-```bash
-python3 setup.py bdist_wheel
-```
-```bash
-pip3 install 'path/to/panda3d-complexpbr.whl'
-```
 ## Installing with PyPI:
+```bash
+pip install panda3d-complexpbr
+```
 
-To-do.
+## Building:
+The module may be built using build. 
+```bash
+python -m build
+```
+```bash
+pip install 'path/to/panda3d-complexpbr.whl'
+```
+
 
 ## Future Project Goals:
 - Function triggers for building new BRDF LUT samplers in realtime
