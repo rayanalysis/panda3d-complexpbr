@@ -276,14 +276,14 @@ void main() {
     // blend the object color with the reflection color based on the intensity
     color = mix(color, ssrOut.color, max(ssrOut.intensity - reflection_threshold, 0.0));
 
-    vec3 hsvColor = rgb2hsv(color);
-    hsvColor *= vec3(hsv_r, hsv_g, hsv_b);
-    color = hsv2rgb(hsvColor);
-
     // apply SSAO to the final color
     float occlusion = ssao(texcoord, viewPos, viewNormal);
     color *= occlusion;
 
     o_color = vec4(bloomAA(color, texcoord), 1.0);
     // o_color = vec4(occlusion, 0, 0, 1.0);
+
+    vec3 hsvColor = rgb2hsv(color);
+    hsvColor *= vec3(hsv_r, hsv_g, hsv_b);
+    color = hsv2rgb(hsvColor);
 }
