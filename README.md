@@ -1,13 +1,15 @@
 # panda3d-complexpbr
 Functional node level scene shader application for Panda3D. complexpbr supports realtime environment reflections for BSDF materials. These reflections are implemented with IBL (Image-based lighting) and PBR (Physically Based Rendering) forward shading constructs. Your machine must support GLSL version 430 or higher. Sample screenshots below.
 
-Featuring support for vertex displacement mapping, SSAO (Screen Space Ambient Occlusion), SSR (Screen Space Reflections), HSV color correction, Bloom, and Sobel based antialiasing in a screenspace kernel shader, which approximates temporal antialiasing. complexpbr.screenspace_init() automatically enables the AA, SSAO, SSR, and HSV color correction. To use the vertex displacement mapping, provide your displacement map as a shader input to your respective model node -- example below in the Usage section.
+Featuring support for vertex displacement mapping, SSAO (Screen Space Ambient Occlusion), HSV color correction, Bloom, and Sobel based antialiasing in a screenspace kernel shader, which approximates temporal antialiasing. complexpbr.screenspace_init() automatically enables the AA, SSAO, and HSV color correction. To use the vertex displacement mapping, provide your displacement map as a shader input to your respective model node -- example below in the Usage section.
 
 By default, the environment reflections dynamically track the camera view. You may set a custom position with the 'env_cam_pos' apply_shader() input variable to IE fix the view to a skybox somewhere on the scene graph. This env_cam_pos variable can be updated live afterwards by setting base.env_cam_pos = Vec3(some_pos). The option to disable or re-enable dynamic reflections is available. 
 
 As of version 0.5.2, complexpbr will default to a dummy BRDF LUT which it creates on the fly. complexpbr will remind you that you may create a custom BRDF LUT with the provided 'brdf_lut_calculator.py' script or copy the sample one provided. This feature is automatic, so if you provide the output_brdf_lut.png file in your program directory, it will default to that .png image ignoring the lut_fill input. The sample 'output_brdf_lut.png' and the creation script can be found in the panda3d-complexpbr git repo. For advanced users there is an option to set the LUT image RGB fill values via apply_shader(lut_fill=[r,g,b]) . See Usage section for an example of lut_fill.
 
 As of version 0.5.3, hardware skinning support is provided via complexpbr.skin(your_actor) for models with skeletal animations. See Usage section for an example of hardware skinning.
+
+As of version 0.5.4, panda3d-complexpbr may be considered mature and ready for production use. complexpbr will endeavor to continue supporting CommonFilters, which is still receiving some contemporary updates. complexpbr is still open to pull requests, feature requests, and so forth to continue expanding the filtering capabilities of screenspace_init() within reason.
 
 The goal of this project is to provide extremely easy to use scene shaders to expose the full functionality of Panda3D rendering, including interoperation with CommonFilters and setting shaders on a per-node basis.
 
@@ -28,18 +30,6 @@ The goal of this project is to provide extremely easy to use scene shaders to ex
 ![bistro_interior_5](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/ad75afa7-e1ef-41ea-aae9-4bb1cea54135)
 
 ![bistro_exterior_10](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/79df6bd6-14d8-4d19-ae5f-45c3418a7607)
-
-6/1/23 Sponza ([Intel GPU Research Samples](https://www.intel.com/content/www/us/en/developer/topic-technology/graphics-research/samples.html))
-
-![sponza_screen_1-Thu-Jun-01-08-16-18-2023-26](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/5d6a603f-9da1-49a1-affb-042658f343ed)
-
-![sponza_screen_1-Thu-Jun-01-08-17-47-2023-15](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/7fffc0f4-75b3-476b-a328-127d231b9171)
-
-![sponza_screen_1-Thu-Jun-01-06-02-59-2023-22](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/913a5263-7750-47c1-b4c4-9f7dace84d6e)
-
-![sponza_screen_2-Thu-Jun-01-05-56-06-2023-591](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/b5055164-3235-48fa-86a7-0f6e3222b903)
-
-![sponza_screen_1-Fri-Jun-02-08-54-07-2023-428](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/7a5c3f1f-1bb9-4dec-9e92-92dc52f77f29)
 
 ## Usage:
 ```python
@@ -154,6 +144,19 @@ pip install 'path/to/panda3d-complexpbr.whl'
 ## Requirements:
 
 - panda3d
+
+
+6/1/23 Sponza ([Intel GPU Research Samples](https://www.intel.com/content/www/us/en/developer/topic-technology/graphics-research/samples.html))
+
+![sponza_screen_1-Thu-Jun-01-08-16-18-2023-26](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/5d6a603f-9da1-49a1-affb-042658f343ed)
+
+![sponza_screen_1-Thu-Jun-01-08-17-47-2023-15](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/7fffc0f4-75b3-476b-a328-127d231b9171)
+
+![sponza_screen_1-Thu-Jun-01-06-02-59-2023-22](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/913a5263-7750-47c1-b4c4-9f7dace84d6e)
+
+![sponza_screen_2-Thu-Jun-01-05-56-06-2023-591](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/b5055164-3235-48fa-86a7-0f6e3222b903)
+
+![sponza_screen_1-Fri-Jun-02-08-54-07-2023-428](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/7a5c3f1f-1bb9-4dec-9e92-92dc52f77f29)
 
 ![sponza_screen_1-Thu-Jun-01-05-39-29-2023-111](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/f366077b-b6d6-4c4a-896d-f456a06a53d1)
 
