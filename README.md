@@ -151,11 +151,6 @@ python -m build
 pip install 'path/to/panda3d-complexpbr.whl'
 ```
 
-
-## Future Project Goals:
-- Function triggers for building new BRDF LUT samplers in realtime
-- Installation over pip
-
 ## Requirements:
 
 - panda3d

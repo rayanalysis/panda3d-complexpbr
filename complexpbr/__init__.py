@@ -1,4 +1,5 @@
 import os, time
+from pathlib import Path
 from panda3d.core import Shader, ShaderAttrib, TextureStage, TexGenAttrib, NodePath
 from panda3d.core import Texture, ATS_none, Vec3, AuxBitplaneAttrib, PNMImage, AntialiasAttrib
 from panda3d.core import load_prc_file_data
@@ -131,10 +132,12 @@ def complexpbr_rig_init(node, intensity, lut_fill):
     brdf_lut_image.fill(red=lut_fill[0],green=lut_fill[1],blue=lut_fill[2])
     # brdf_lut_image.alpha_fill(1.0)
     brdf_lut_tex.load(brdf_lut_image)
+    brdf_lut_ext_tex = Path('output_brdf_lut.png')
     
-    try:
+    if brdf_lut_ext_tex.is_file():
         brdf_lut_tex = loader.load_texture('output_brdf_lut.png')
-    except:
+    else:
+        brdf_lut_tex.load(brdf_lut_image)
         ex_text = "complexpbr message: Defaulting to dummy LUT."
         print(ex_text)
         
