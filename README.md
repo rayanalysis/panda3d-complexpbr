@@ -65,6 +65,9 @@ class main(ShowBase):
         
         # make the cubemap rendering dynamic (this is the default state)
         complexpbr.set_cubebuff_active()
+        
+        # adjustment factor for the cubemap rendering height as of version 0.5.5
+        base.complexpbr_map_z = 2.1
 
         # example of how to apply hardware skinning
         fp_character = actor_data.player_character  # this is an Actor() model

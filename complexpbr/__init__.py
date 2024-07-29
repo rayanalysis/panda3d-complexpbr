@@ -47,13 +47,13 @@ def set_cubebuff_active():
     return threading2._start_new_thread(set_thread,())
 
 def rotate_cubemap(task):
-    c_map = base.render.find('cuberig')
-    c_map.set_h(base.render,base.cam.get_h(base.render))
-    c_map.set_p(base.render,base.cam.get_p(base.render) + 90)
-    if base.env_cam_pos is None:
-        c_map.set_pos(base.cam.get_pos(base.render))
+    base.complexpbr_map.set_h(base.render,base.cam.get_h(base.render))
+    base.complexpbr_map.set_p(base.render,base.cam.get_p(base.render) + 90)
+    cam_pos = base.cam.get_pos(base.render)
+    if base.env_cam_pos is not None:
+        base.complexpbr_map.set_pos(base.env_cam_pos[0],base.env_cam_pos[1],base.env_cam_pos[2]+base.complexpbr_map_z)
     else:
-        c_map.set_pos(base.env_cam_pos)
+        base.complexpbr_map.set_pos(cam_pos[0],cam_pos[1],cam_pos[2]+base.complexpbr_map_z)
 
     return task.cont
 
@@ -128,7 +128,7 @@ def complexpbr_rig_init(node, intensity, lut_fill):
     
     brdf_lut_tex = Texture("complexpbr_lut")
     brdf_lut_image = PNMImage()
-    brdf_lut_image.clear(x_size=base.win.get_x_size(), y_size=base.win.get_y_size(), num_channels=4)
+    brdf_lut_image.clear(x_size=base.win.get_x_size(),y_size=base.win.get_y_size(),num_channels=4)
     brdf_lut_image.fill(red=lut_fill[0],green=lut_fill[1],blue=lut_fill[2])
     # brdf_lut_image.alpha_fill(1.0)
     brdf_lut_tex.load(brdf_lut_image)
@@ -138,9 +138,7 @@ def complexpbr_rig_init(node, intensity, lut_fill):
         brdf_lut_tex = loader.load_texture('output_brdf_lut.png')
     else:
         brdf_lut_tex.load(brdf_lut_image)
-        ex_text = "complexpbr message: Defaulting to dummy LUT."
-        print(ex_text)
-        
+
     shader_cam_pos = Vec3(base.cam.get_pos(base.render))
     displacement_scale_val = 0.0  # default to 0 to avoid having to check for displacement
     displacement_map = Texture()
@@ -169,17 +167,17 @@ def apply_shader(node=None, intensity=1.0, env_cam_pos=None, env_res=256, lut_fi
 
     if cpbr_shader_init:
         cpbr_shader_init = False
-        base.env_cam_pos = env_cam_pos
         
         vert = "ibl_v.vert"
         frag = "ibl_f.frag"
 
         base.complexpbr_shader = Shader.load(Shader.SL_GLSL, vert, frag)
 
-        cube_rig = NodePath('cuberig')
-        base.cube_buffer = base.win.make_cube_map('cubemap', env_res, cube_rig)
-        cube_rig.reparent_to(base.render)
-        cube_rig.set_p(90)
+        base.complexpbr_map = NodePath('cuberig')
+        base.cube_buffer = base.win.make_cube_map('cubemap', env_res, base.complexpbr_map)
+        base.complexpbr_map.reparent_to(base.render)
+        base.complexpbr_map_z = 0
+        base.env_cam_pos = env_cam_pos
 
     complexpbr_rig_init(node, intensity=intensity, lut_fill=lut_fill)
 
