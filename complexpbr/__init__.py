@@ -7,32 +7,8 @@ from direct.stdpy import threading2
 from direct.filter.FilterManager import FilterManager
 
 
-cpbr_shader_init = True
+complexpbr_init = True
 shader_dir = os.path.join(os.path.dirname(__file__), '')
-
-with open(os.path.join(shader_dir, 'ibl_v.vert')) as shaderfile:
-    shaderstr = shaderfile.read()
-    out_v = open('ibl_v.vert','w')
-    out_v.write(shaderstr)
-    out_v.close()
-
-with open(os.path.join(shader_dir, 'ibl_f.frag')) as shaderfile:
-    shaderstr = shaderfile.read()
-    out_v = open('ibl_f.frag','w')
-    out_v.write(shaderstr)
-    out_v.close()
-
-with open(os.path.join(shader_dir, 'min_v.vert')) as shaderfile:
-    shaderstr = shaderfile.read()
-    out_v = open('min_v.vert','w')
-    out_v.write(shaderstr)
-    out_v.close()
-
-with open(os.path.join(shader_dir, 'min_f.frag')) as shaderfile:
-    shaderstr = shaderfile.read()
-    out_v = open('min_f.frag','w')
-    out_v.write(shaderstr)
-    out_v.close()
 
 def set_cubebuff_inactive():
     def set_thread():
@@ -63,6 +39,18 @@ def rotate_cubemap(task):
     return task.cont
 
 def screenspace_init():
+    with open(os.path.join(shader_dir, 'min_v.vert')) as shaderfile:
+        shaderstr = shaderfile.read()
+        out_v = open('min_v.vert','w')
+        out_v.write(shaderstr)
+        out_v.close()
+
+    with open(os.path.join(shader_dir, 'min_f.frag')) as shaderfile:
+        shaderstr = shaderfile.read()
+        out_v = open('min_f.frag','w')
+        out_v.write(shaderstr)
+        out_v.close()
+
     auxbits = 0
     auxbits |= AuxBitplaneAttrib.ABOAuxNormal
 
@@ -121,6 +109,9 @@ def screenspace_init():
     
     base.screen_quad = screen_quad
     base.render.set_antialias(AntialiasAttrib.MMultisample)
+    
+    os.remove('min_v.vert')
+    os.remove('min_f.frag')
 
 def complexpbr_rig_init(node, intensity, lut_fill):
     load_prc_file_data('', 'hardware-animated-vertices #t')
@@ -168,10 +159,22 @@ def skin(node):
     node.set_attrib(base.complexpbr_skin_attrib)
 
 def apply_shader(node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
-    global cpbr_shader_init
+    global complexpbr_init
+    
+    with open(os.path.join(shader_dir, 'ibl_v.vert')) as shaderfile:
+        shaderstr = shaderfile.read()
+        out_v = open('ibl_v.vert','w')
+        out_v.write(shaderstr)
+        out_v.close()
 
-    if cpbr_shader_init:
-        cpbr_shader_init = False
+    with open(os.path.join(shader_dir, 'ibl_f.frag')) as shaderfile:
+        shaderstr = shaderfile.read()
+        out_v = open('ibl_f.frag','w')
+        out_v.write(shaderstr)
+        out_v.close()
+
+    if complexpbr_init:
+        complexpbr_init = False
         
         vert = "ibl_v.vert"
         frag = "ibl_f.frag"
@@ -186,6 +189,9 @@ def apply_shader(node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[
         base.complexpbr_z_tracking = complexpbr_z_tracking
 
     complexpbr_rig_init(node, intensity=intensity, lut_fill=lut_fill)
+    
+    os.remove('ibl_v.vert')
+    os.remove('ibl_f.frag')
 
 
 class Shaders:
