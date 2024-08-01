@@ -54,6 +54,11 @@ def rotate_cubemap(task):
         base.complexpbr_map.set_pos(base.env_cam_pos[0],base.env_cam_pos[1],base.env_cam_pos[2]+base.complexpbr_map_z)
     else:
         base.complexpbr_map.set_pos(cam_pos[0],cam_pos[1],cam_pos[2]+base.complexpbr_map_z)
+        
+    if base.complexpbr_z_tracking:
+        cam_relative_pos = base.cam.get_pos(base.render)
+        cam_relative_pos[2] = cam_relative_pos[2]-(2 * cam_relative_pos[2])
+        base.env_cam_pos = cam_relative_pos
 
     return task.cont
 
@@ -162,7 +167,7 @@ def complexpbr_rig_init(node, intensity, lut_fill):
 def skin(node):
     node.set_attrib(base.complexpbr_skin_attrib)
 
-def apply_shader(node=None, intensity=1.0, env_cam_pos=None, env_res=256, lut_fill=[1.0,0.0,0.0]):
+def apply_shader(node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
     global cpbr_shader_init
 
     if cpbr_shader_init:
@@ -178,6 +183,7 @@ def apply_shader(node=None, intensity=1.0, env_cam_pos=None, env_res=256, lut_fi
         base.complexpbr_map.reparent_to(base.render)
         base.complexpbr_map_z = 0
         base.env_cam_pos = env_cam_pos
+        base.complexpbr_z_tracking = complexpbr_z_tracking
 
     complexpbr_rig_init(node, intensity=intensity, lut_fill=lut_fill)
 
