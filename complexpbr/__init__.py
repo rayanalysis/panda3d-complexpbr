@@ -10,6 +10,16 @@ from direct.filter.FilterManager import FilterManager
 complexpbr_init = True
 shader_dir = os.path.join(os.path.dirname(__file__), '')
 
+def remove_shader_files():
+    os.remove('ibl_v.vert')
+    os.remove('ibl_f.frag')
+    
+    try:
+        os.remove('min_v.vert')
+        os.remove('min_f.frag')
+    except:
+        print('complexpbr message: Screenspace shaders are not present for deletion.')
+        
 def set_cubebuff_inactive():
     def set_thread():
         time.sleep(.5)
@@ -109,9 +119,6 @@ def screenspace_init():
     
     base.screen_quad = screen_quad
     base.render.set_antialias(AntialiasAttrib.MMultisample)
-    
-    # os.remove('min_v.vert')
-    # os.remove('min_f.frag')
 
 def complexpbr_rig_init(node, intensity, lut_fill):
     load_prc_file_data('', 'hardware-animated-vertices #t')
@@ -189,10 +196,6 @@ def apply_shader(node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[
         base.complexpbr_z_tracking = complexpbr_z_tracking
 
     complexpbr_rig_init(node, intensity=intensity, lut_fill=lut_fill)
-
-    # os.remove('ibl_v.vert')
-    # os.remove('ibl_f.frag')
-
 
 class Shaders:
     def __init__(self):

@@ -11,6 +11,8 @@ As of version 0.5.3, hardware skinning support is provided via complexpbr.skin(y
 
 As of version 0.5.4, panda3d-complexpbr may be considered mature and ready for production use. complexpbr will endeavor to continue supporting CommonFilters, which is still receiving some contemporary updates. complexpbr is still open to pull requests, feature requests, and so forth to continue expanding the filtering capabilities of screenspace_init() within reason.
 
+As of version 0.5.6, dynamic environmental Z-tracking functionality has been expanded, and a function has been added to optionally clean up the created shader files.
+
 The goal of this project is to provide extremely easy to use scene shaders to expose the full functionality of Panda3D rendering, including interoperation with CommonFilters and setting shaders on a per-node basis.
 
 ![complexpbr_screen_2](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/a8a7d360-6b52-4fa8-91f8-31f052421043)
@@ -71,6 +73,9 @@ class main(ShowBase):
         # automatically adjust the environment reflections such that they
         # update relative to the base.cam position during movement
         base.complexpbr_z_tracking = True  # defaults to False
+        
+        # clean up the shader files (not recommended for distributable builds)
+        # complexpbr.remove_shader_files()
 
         # example of how to apply hardware skinning
         fp_character = actor_data.player_character  # this is an Actor() model
