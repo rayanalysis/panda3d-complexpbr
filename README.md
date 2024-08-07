@@ -1,5 +1,5 @@
 # panda3d-complexpbr
-Functional node level scene shader application for Panda3D. complexpbr supports realtime environment reflections for BSDF materials. These reflections are implemented with IBL (Image-based lighting) and PBR (Physically Based Rendering) forward shading constructs. Your machine must support GLSL version 430 or higher. Sample screenshots below.
+complexpbr is an IBL rendering module which supports real-time reflections and post-processing effects in Panda3D. complexpbr supports realtime environment reflections for BSDF materials. Your machine must support GLSL version 430 or higher. Sample screenshots and minimum usage examples below.
 
 Featuring support for vertex displacement mapping, SSAO (Screen Space Ambient Occlusion), HSV color correction, Bloom, and Sobel based antialiasing in a screenspace kernel shader, which approximates temporal antialiasing. complexpbr.screenspace_init() automatically enables the AA, SSAO, and HSV color correction. To use the vertex displacement mapping, provide your displacement map as a shader input to your respective model node -- example below in the Usage section.
 
@@ -33,7 +33,26 @@ The goal of this project is to provide extremely easy to use scene shaders to ex
 
 ![bistro_exterior_10](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/79df6bd6-14d8-4d19-ae5f-45c3418a7607)
 
-## Usage:
+
+
+## Minimal Usage:
+```python
+from direct.showbase.ShowBase import ShowBase
+from panda3d.core import *
+import complexpbr
+
+class main(ShowBase):
+    def __init__(self):
+        super().__init__()
+
+        complexpbr.apply_shader(self.render)
+        # complexpbr.screenspace_init()  # optional, starts the screenspace effects
+        
+app = main()
+app.run()
+```
+
+## Expanded Usage:
 ```python
 from direct.showbase.ShowBase import ShowBase
 import complexpbr
