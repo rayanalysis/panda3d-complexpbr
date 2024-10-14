@@ -51,13 +51,13 @@ def rotate_cubemap(task):
 def screenspace_init():
     with open(os.path.join(shader_dir, 'min_v.vert')) as shaderfile:
         shaderstr = shaderfile.read()
-        out_v = open('min_v.vert','w')
+        out_v = open('min_v.vert', 'w')
         out_v.write(shaderstr)
         out_v.close()
 
     with open(os.path.join(shader_dir, 'min_f.frag')) as shaderfile:
         shaderstr = shaderfile.read()
-        out_v = open('min_f.frag','w')
+        out_v = open('min_f.frag', 'w')
         out_v.write(shaderstr)
         out_v.close()
 
@@ -170,13 +170,13 @@ def apply_shader(node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[
     
     with open(os.path.join(shader_dir, 'ibl_v.vert')) as shaderfile:
         shaderstr = shaderfile.read()
-        out_v = open('ibl_v.vert','w')
+        out_v = open('ibl_v.vert', 'w')
         out_v.write(shaderstr)
         out_v.close()
 
     with open(os.path.join(shader_dir, 'ibl_f.frag')) as shaderfile:
         shaderstr = shaderfile.read()
-        out_v = open('ibl_f.frag','w')
+        out_v = open('ibl_f.frag', 'w')
         out_v.write(shaderstr)
         out_v.close()
 
@@ -185,6 +185,103 @@ def apply_shader(node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[
         
         vert = "ibl_v.vert"
         frag = "ibl_f.frag"
+
+        base.complexpbr_shader = Shader.load(Shader.SL_GLSL, vert, frag)
+
+        base.complexpbr_map = NodePath('cuberig')
+        base.cube_buffer = base.win.make_cube_map('cubemap', env_res, base.complexpbr_map)
+        base.complexpbr_map.reparent_to(base.render)
+        base.complexpbr_map_z = 0
+        base.env_cam_pos = env_cam_pos
+        base.complexpbr_z_tracking = complexpbr_z_tracking
+        base.complexpbr_append_shader_count = 0
+
+    complexpbr_rig_init(node, intensity=intensity, lut_fill=lut_fill)
+    
+def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
+    global complexpbr_init
+    
+    with open(os.path.join(shader_dir, 'ibl_v.vert')) as shaderfile:
+        shaderstr = shaderfile.read()
+        out_v = open('ibl_v.vert', 'w')
+        out_v.write(shaderstr)
+        out_v.close()
+
+    with open(os.path.join(shader_dir, 'ibl_f.frag')) as shaderfile:
+        shaderstr = shaderfile.read()
+        out_v = open('ibl_f.frag', 'w')
+        out_v.write(shaderstr)
+        out_v.close()
+
+    if complexpbr_init:
+        complexpbr_init = False
+        
+        vert = "ibl_v.vert"
+        frag = "ibl_f.frag"
+        
+        base.complexpbr_append_shader_count = 0
+        base.complexpbr_append_shader_count += 1
+        
+        append_shader_file = ''
+        input_body_mod = 'in vec3 test_albedo = vec3(0.0);'
+        input_main_mod = 'vec3 something_else = vec3(0.0);'
+        input_body_reached = False
+        main_reached = False
+        end_reached = False
+        
+        with open(frag) as shaderfile:
+            shaderstr = shaderfile.read()
+            for line in shaderstr.split('\n'):
+                # print(line)
+                append_shader_file += line
+                if 'uniform float specular_factor' in line:
+                    break
+                    
+            append_shader_file += (input_body_mod + '\n')
+            
+            for line in shaderstr.split('\n'):
+                if 'const float LIGHT_CUTOFF' in line:
+                    print(line)
+                    print('input body reached')
+                    input_body_reached = True
+                    
+                if 'void main' in line:
+                    main_reached = True
+                                       
+                if input_body_reached and not main_reached:
+                    append_shader_file += line
+                    
+            main_reached = False
+                    
+            for line in shaderstr.split('\n'):
+                if 'void main' in line:
+                    main_reached = True
+                    
+                if 'color.rgb' in line:
+                    end_reached = True
+                    print(line)
+                    
+                if main_reached and not end_reached:
+                    append_shader_file += line
+                    
+            append_shader_file += (input_main_mod + '\n')
+            
+            for line in shaderstr.split('\n'):
+                if 'color.rgb' in line:
+                    end_reached = True
+                    print(line)
+                    
+                if end_reached:
+                    append_shader_file += line
+                
+            for line in append_shader_file.split('\n'):
+                print(line + '\n')
+                    
+        out_v = open('ibl_f_' + str(base.complexpbr_append_shader_count) + '.frag', 'w')
+        out_v.write(append_shader_file)
+        out_v.close()
+            
+        frag = 'ibl_f_' + str(base.complexpbr_append_shader_count) + '.frag'
 
         base.complexpbr_shader = Shader.load(Shader.SL_GLSL, vert, frag)
 
