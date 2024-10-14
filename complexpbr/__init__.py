@@ -232,16 +232,16 @@ def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=
         with open(frag) as shaderfile:
             shaderstr = shaderfile.read()
             for line in shaderstr.split('\n'):
-                # print(line)
                 append_shader_file += line
                 if 'uniform float specular_factor' in line:
                     break
                     
             append_shader_file += (input_body_mod + '\n')
+            print(append_shader_file)
             
             for line in shaderstr.split('\n'):
                 if 'const float LIGHT_CUTOFF' in line:
-                    print(line)
+                    # print(line)
                     print('input body reached')
                     input_body_reached = True
                     
@@ -259,26 +259,30 @@ def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=
                     
                 if 'color.rgb' in line:
                     end_reached = True
-                    print(line)
+                    # print(line)
+                    print('end reached')
                     
                 if main_reached and not end_reached:
                     append_shader_file += line
                     
             append_shader_file += (input_main_mod + '\n')
             
+            end_reached = False
+            
             for line in shaderstr.split('\n'):
                 if 'color.rgb' in line:
                     end_reached = True
-                    print(line)
+                    print('end reached')
                     
                 if end_reached:
                     append_shader_file += line
-                
-            for line in append_shader_file.split('\n'):
-                print(line + '\n')
                     
         out_v = open('ibl_f_' + str(base.complexpbr_append_shader_count) + '.frag', 'w')
-        out_v.write(append_shader_file)
+        
+        for line in append_shader_file.split('\n'):
+            out_v.write(line)
+            out_v.write('\n')
+            
         out_v.close()
             
         frag = 'ibl_f_' + str(base.complexpbr_append_shader_count) + '.frag'
