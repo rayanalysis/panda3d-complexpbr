@@ -213,104 +213,101 @@ def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=
         out_v.write(shaderstr)
         out_v.close()
 
-    if complexpbr_init:
-        complexpbr_init = False
-        
-        vert = "ibl_v.vert"
-        frag = "ibl_f.frag"
+    vert = "ibl_v.vert"
+    frag = "ibl_f.frag"
 
-        extant_append_shaders = []
-        local_shader_dir = os.listdir()
-        
-        for item in local_shader_dir:
-            if 'ibl_f_' in item:
-                extant_append_shaders.append(item)
+    extant_append_shaders = []
+    local_shader_dir = os.listdir()
+    
+    for item in local_shader_dir:
+        if 'ibl_f_' in item:
+            extant_append_shaders.append(item)
 
-        extant_append_shaders = sorted(extant_append_shaders)
-        
-        try:
-            top_extant_shader_val = int(extant_append_shaders.pop().strip('ibl_f_').strip('.frag'))
-            base.complexpbr_append_shader_count = top_extant_shader_val + 1
-        except:
-            base.complexpbr_append_shader_count = 1
-        
-        append_shader_file = ''
-        input_body_mod = ''
-        input_main_mod = ''
-        input_body_reached = False
+    extant_append_shaders = sorted(extant_append_shaders)
+    
+    try:
+        top_extant_shader_val = int(extant_append_shaders.pop().strip('ibl_f_').strip('.frag'))
+        base.complexpbr_append_shader_count = top_extant_shader_val + 1
+    except:
+        base.complexpbr_append_shader_count = 1
+    
+    append_shader_file = ''
+    input_body_mod = ''
+    input_main_mod = ''
+    input_body_reached = False
+    main_reached = False
+    end_reached = False
+    
+    if input_string == '':
+        input_body_mod = 'vec3 test_albedo = vec3(0.0);'
+        input_main_mod = 'vec3 something_else = vec3(0.0);'
+    else:
+        for line in input_string.split('\n'):
+            if 'void main' in line:
+                main_reached = True
+            
+            if not main_reached:
+                input_body_mod += (line + '\n')
+                
         main_reached = False
+         
+        for line in input_string.split('\n'):
+            if 'void main' in line:
+                main_reached = True
+            
+            if main_reached:
+                if not 'void main' in line:
+                    input_main_mod += (line + '\n')
+                
+        main_reached = False
+    
+    with open(frag) as shaderfile:
+        shaderstr = shaderfile.read()
+        for line in shaderstr.split('\n'):
+            append_shader_file += (line + '\n')
+            if 'uniform float specular_factor' in line:
+                break
+                
+        append_shader_file += (input_body_mod + '\n')
+        # print(append_shader_file)
+        
+        for line in shaderstr.split('\n'):
+            if 'const float LIGHT_CUTOFF' in line:
+                # print(line)
+                # print('input body reached')
+                input_body_reached = True
+                
+            if 'void main' in line:
+                main_reached = True
+                                   
+            if input_body_reached and not main_reached:
+                append_shader_file += (line + '\n')
+                
+        main_reached = False
+                
+        for line in shaderstr.split('\n'):
+            if 'void main' in line:
+                main_reached = True
+                
+            if 'vec3 spec_color = F0;' in line:
+                end_reached = True
+                # print(line)
+                # print('end reached')
+                
+            if main_reached and not end_reached:
+                append_shader_file += (line + '\n')
+                
+        append_shader_file += (input_main_mod + '\n')
+        
         end_reached = False
         
-        if input_string == '':
-            input_body_mod = 'vec3 test_albedo = vec3(0.0);'
-            input_main_mod = 'vec3 something_else = vec3(0.0);'
-        else:
-            for line in input_string.split('\n'):
-                if 'void main' in line:
-                    main_reached = True
+        for line in shaderstr.split('\n'):
+            if 'vec3 spec_color = F0;' in line:
+                end_reached = True
+                # print('end reached')
                 
-                if not main_reached:
-                    input_body_mod += (line + '\n')
-                    
-            main_reached = False
-             
-            for line in input_string.split('\n'):
-                if 'void main' in line:
-                    main_reached = True
-                
-                if main_reached:
-                    if not 'void main' in line:
-                        input_main_mod += (line + '\n')
-                    
-            main_reached = False
-        
-        with open(frag) as shaderfile:
-            shaderstr = shaderfile.read()
-            for line in shaderstr.split('\n'):
+            if end_reached:
                 append_shader_file += (line + '\n')
-                if 'uniform float specular_factor' in line:
-                    break
-                    
-            append_shader_file += (input_body_mod + '\n')
-            # print(append_shader_file)
-            
-            for line in shaderstr.split('\n'):
-                if 'const float LIGHT_CUTOFF' in line:
-                    # print(line)
-                    # print('input body reached')
-                    input_body_reached = True
-                    
-                if 'void main' in line:
-                    main_reached = True
-                                       
-                if input_body_reached and not main_reached:
-                    append_shader_file += (line + '\n')
-                    
-            main_reached = False
-                    
-            for line in shaderstr.split('\n'):
-                if 'void main' in line:
-                    main_reached = True
-                    
-                if 'vec3 spec_color = F0;' in line:
-                    end_reached = True
-                    # print(line)
-                    # print('end reached')
-                    
-                if main_reached and not end_reached:
-                    append_shader_file += (line + '\n')
-                    
-            append_shader_file += (input_main_mod + '\n')
-            
-            end_reached = False
-            
-            for line in shaderstr.split('\n'):
-                if 'vec3 spec_color = F0;' in line:
-                    end_reached = True
-                    # print('end reached')
-                    
-                if end_reached:
-                    append_shader_file += (line + '\n')
                     
         out_v = open('ibl_f_' + str(base.complexpbr_append_shader_count) + '.frag', 'w')
         
