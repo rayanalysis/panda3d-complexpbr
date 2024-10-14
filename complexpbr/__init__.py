@@ -227,8 +227,12 @@ def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=
                 extant_append_shaders.append(item)
 
         extant_append_shaders = sorted(extant_append_shaders)
-        top_extant_shader_val = int(extant_append_shaders.pop().strip('ibl_f_').strip('.frag'))
-        base.complexpbr_append_shader_count = top_extant_shader_val + 1
+        
+        try:
+            top_extant_shader_val = int(extant_append_shaders.pop().strip('ibl_f_').strip('.frag'))
+            base.complexpbr_append_shader_count = top_extant_shader_val + 1
+        except:
+            base.complexpbr_append_shader_count = 1
         
         append_shader_file = ''
         input_body_mod = ''
