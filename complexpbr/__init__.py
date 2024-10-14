@@ -223,7 +223,7 @@ def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=
         base.complexpbr_append_shader_count += 1
         
         append_shader_file = ''
-        input_body_mod = 'in vec3 test_albedo = vec3(0.0);'
+        input_body_mod = 'vec3 test_albedo = vec3(0.0);'
         input_main_mod = 'vec3 something_else = vec3(0.0);'
         input_body_reached = False
         main_reached = False
@@ -232,12 +232,12 @@ def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=
         with open(frag) as shaderfile:
             shaderstr = shaderfile.read()
             for line in shaderstr.split('\n'):
-                append_shader_file += line
+                append_shader_file += (line + '\n')
                 if 'uniform float specular_factor' in line:
                     break
                     
             append_shader_file += (input_body_mod + '\n')
-            print(append_shader_file)
+            # print(append_shader_file)
             
             for line in shaderstr.split('\n'):
                 if 'const float LIGHT_CUTOFF' in line:
@@ -249,7 +249,7 @@ def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=
                     main_reached = True
                                        
                 if input_body_reached and not main_reached:
-                    append_shader_file += line
+                    append_shader_file += (line + '\n')
                     
             main_reached = False
                     
@@ -260,10 +260,10 @@ def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=
                 if 'color.rgb' in line:
                     end_reached = True
                     # print(line)
-                    print('end reached')
+                    # print('end reached')
                     
                 if main_reached and not end_reached:
-                    append_shader_file += line
+                    append_shader_file += (line + '\n')
                     
             append_shader_file += (input_main_mod + '\n')
             
@@ -272,10 +272,10 @@ def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=
             for line in shaderstr.split('\n'):
                 if 'color.rgb' in line:
                     end_reached = True
-                    print('end reached')
+                    # print('end reached')
                     
                 if end_reached:
-                    append_shader_file += line
+                    append_shader_file += (line + '\n')
                     
         out_v = open('ibl_f_' + str(base.complexpbr_append_shader_count) + '.frag', 'w')
         
