@@ -223,11 +223,34 @@ def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=
         base.complexpbr_append_shader_count += 1
         
         append_shader_file = ''
-        input_body_mod = 'vec3 test_albedo = vec3(0.0);'
-        input_main_mod = 'vec3 something_else = vec3(0.0);'
+        input_body_mod = ''
+        input_main_mod = ''
         input_body_reached = False
         main_reached = False
         end_reached = False
+        
+        if input_string == '':
+            input_body_mod = 'vec3 test_albedo = vec3(0.0);'
+            input_main_mod = 'vec3 something_else = vec3(0.0);'
+        else:
+            for line in input_string.split('\n'):
+                if 'void main' in line:
+                    main_reached = True
+                
+                if not main_reached:
+                    input_body_mod += (line + '\n')
+                    
+            main_reached = False
+             
+            for line in input_string.split('\n'):
+                if 'void main' in line:
+                    main_reached = True
+                
+                if main_reached:
+                    if not 'void main' in line:
+                        input_main_mod += (line + '\n')
+                    
+            main_reached = False
         
         with open(frag) as shaderfile:
             shaderstr = shaderfile.read()
@@ -242,7 +265,7 @@ def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=
             for line in shaderstr.split('\n'):
                 if 'const float LIGHT_CUTOFF' in line:
                     # print(line)
-                    print('input body reached')
+                    # print('input body reached')
                     input_body_reached = True
                     
                 if 'void main' in line:
@@ -257,7 +280,7 @@ def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=
                 if 'void main' in line:
                     main_reached = True
                     
-                if 'color.rgb' in line:
+                if 'vec3 spec_color = F0;' in line:
                     end_reached = True
                     # print(line)
                     # print('end reached')
@@ -270,7 +293,7 @@ def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=
             end_reached = False
             
             for line in shaderstr.split('\n'):
-                if 'color.rgb' in line:
+                if 'vec3 spec_color = F0;' in line:
                     end_reached = True
                     # print('end reached')
                     
