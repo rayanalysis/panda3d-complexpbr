@@ -289,7 +289,7 @@ def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=
             if 'void main' in line:
                 main_reached = True
                 
-            if 'vec3 spec_color = F0;' in line:
+            if 'outputNormal = texture(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5);' in line:
                 end_reached = True
                 # print(line)
                 # print('end reached')
@@ -302,7 +302,7 @@ def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=
         end_reached = False
         
         for line in shaderstr.split('\n'):
-            if 'vec3 spec_color = F0;' in line:
+            if 'outputNormal = texture(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5);' in line:
                 end_reached = True
                 # print('end reached')
                 
