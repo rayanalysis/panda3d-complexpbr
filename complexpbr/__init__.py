@@ -198,9 +198,9 @@ def apply_shader(node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[
 
     complexpbr_rig_init(node, intensity=intensity, lut_fill=lut_fill)
     
-def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
-    global complexpbr_init
-    
+def append_shader(node=None,body_mod='',main_mod='',intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[1.0,0.0,0.0],
+complexpbr_z_tracking=False):
+
     with open(os.path.join(shader_dir, 'ibl_v.vert')) as shaderfile:
         shaderstr = shaderfile.read()
         out_v = open('ibl_v.vert', 'w')
@@ -239,28 +239,8 @@ def append_shader(input_string,node=None,intensity=1.0,env_cam_pos=None,env_res=
     main_reached = False
     end_reached = False
     
-    if input_string == '':
-        input_body_mod = 'vec3 test_albedo = vec3(0.0);'
-        input_main_mod = 'vec3 something_else = vec3(0.0);'
-    else:
-        for line in input_string.split('\n'):
-            if 'void main' in line:
-                main_reached = True
-            
-            if not main_reached:
-                input_body_mod += (line + '\n')
-                
-        main_reached = False
-         
-        for line in input_string.split('\n'):
-            if 'void main' in line:
-                main_reached = True
-            
-            if main_reached:
-                if not 'void main' in line:
-                    input_main_mod += (line + '\n')
-                
-        main_reached = False
+    input_body_mod = body_mod
+    input_main_mod = main_mod
     
     with open(frag) as shaderfile:
         shaderstr = shaderfile.read()
