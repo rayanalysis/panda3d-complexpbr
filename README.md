@@ -13,6 +13,8 @@ As of version 0.5.4, panda3d-complexpbr may be considered mature and ready for p
 
 As of version 0.5.6, dynamic environmental Z-tracking functionality has been expanded, and a function has been added to optionally clean up the created shader files.
 
+As of version 0.5.7, shader composition functionality has been expanded. Using "append_shader()", you may provide custom model-level fragment shader functions and modifications to the main loop.
+
 The goal of this project is to provide extremely easy to use scene shaders to expose the full functionality of Panda3D rendering, including interoperation with CommonFilters and setting shaders on a per-node basis.
 
 ![complexpbr_screen_2](https://github.com/rayanalysis/panda3d-complexpbr/assets/3117958/a8a7d360-6b52-4fa8-91f8-31f052421043)
@@ -111,6 +113,14 @@ class main(ShowBase):
         dis_tex.read('assets/textures/WoodFloor057_2K-PNG/WoodFloor057_2K_Displacement.png')
         wood_sphere_3.set_shader_input('displacement_map', dis_tex)
         wood_sphere_3.set_shader_input('displacement_scale', 0.1)
+        
+        # example of how to use the shader composition functionality
+        complexpbr.apply_shader(test_sphere)  # example sphere model
+        complexpbr.apply_shader(test_sphere_2)  # example sphere model
+        # call the append_shader() function
+        custom_body_mod = 'float default_noise(vec2 n)\n{\nfloat n2  = fract(sin(dot(n.xy,vec2(11.78,77.443)))*44372.7263);\nreturn n2;\n}'
+        custom_main_mod = 'o_color += default_noise(vec2(2.3,3.3));'
+        complexpbr.append_shader(test_sphere, custom_body_mod, custom_main_mod)
         
         # example of how to set up bloom -- complexpbr.screenspace_init() must have been called first
         screen_quad = base.screen_quad
