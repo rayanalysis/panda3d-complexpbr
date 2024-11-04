@@ -20,6 +20,20 @@ def remove_shader_files():
     except:
         print('complexpbr message: Screenspace shaders are not present for deletion.')
         
+    try:
+        local_shader_dir = os.listdir()
+        
+        for item in local_shader_dir:
+            if 'ibl_f_' in item:
+                os.remove(item)
+            
+            elif 'ibl_v_' in item:
+                os.remove(item)
+    
+    except:
+        print('append_shader() cleanup was not successful.')
+
+        
 def set_cubebuff_inactive():
     def set_thread():
         time.sleep(.5)
@@ -198,8 +212,8 @@ def apply_shader(node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[
 
     complexpbr_rig_init(node, intensity=intensity, lut_fill=lut_fill)
     
-def append_shader(node=None,body_mod='',main_mod='',intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[1.0,0.0,0.0],
-complexpbr_z_tracking=False):
+def append_shader(node=None,frag_body_mod='',frag_main_mod='',vert_body_mod='',vert_main_mod='',intensity=1.0,env_cam_pos=None,
+env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
 
     with open(os.path.join(shader_dir, 'ibl_v.vert')) as shaderfile:
         shaderstr = shaderfile.read()
@@ -233,72 +247,156 @@ complexpbr_z_tracking=False):
         base.complexpbr_append_shader_count = 1
 
     append_shader_file = ''
-    input_body_mod = ''
-    input_main_mod = ''
     input_body_reached = False
     main_reached = False
     end_reached = False
     
-    input_body_mod = body_mod
-    input_main_mod = main_mod
+    input_frag_body_mod = frag_body_mod
+    input_frag_main_mod = frag_main_mod
     
-    with open(frag) as shaderfile:
-        shaderstr = shaderfile.read()
-        for line in shaderstr.split('\n'):
-            append_shader_file += (line + '\n')
-            if 'uniform float specular_factor' in line:
-                break
-                
-        append_shader_file += (input_body_mod + '\n')
-        # print(append_shader_file)
-        
-        for line in shaderstr.split('\n'):
-            if 'const float LIGHT_CUTOFF' in line:
-                # print(line)
-                # print('input body reached')
-                input_body_reached = True
-                
-            if 'void main' in line:
-                main_reached = True
-                                   
-            if input_body_reached and not main_reached:
+    input_vert_body_mod = vert_body_mod
+    input_vert_main_mod = vert_main_mod
+    
+    # fragment modification begins
+    if input_frag_body_mod != '' or input_frag_main_mod != '':
+        with open(frag) as shaderfile:
+            shaderstr = shaderfile.read()
+            for line in shaderstr.split('\n'):
                 append_shader_file += (line + '\n')
-                
-        main_reached = False
-                
-        for line in shaderstr.split('\n'):
-            if 'void main' in line:
-                main_reached = True
-                
-            if 'outputNormal = texture(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5);' in line:
-                end_reached = True
-                # print(line)
-                # print('end reached')
-                
-            if main_reached and not end_reached:
-                append_shader_file += (line + '\n')
-                
-        append_shader_file += (input_main_mod + '\n')
-        
-        end_reached = False
-        
-        for line in shaderstr.split('\n'):
-            if 'outputNormal = texture(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5);' in line:
-                end_reached = True
-                # print('end reached')
-                
-            if end_reached:
-                append_shader_file += (line + '\n')
+                if 'uniform float specular_factor' in line:
+                    break
                     
-        out_v = open('ibl_f_' + str(base.complexpbr_append_shader_count) + '.frag', 'w')
+            append_shader_file += (input_frag_body_mod + '\n')
+            # print(append_shader_file)
+            
+            for line in shaderstr.split('\n'):
+                if 'const float LIGHT_CUTOFF' in line:
+                    # print(line)
+                    # print('input body reached')
+                    input_body_reached = True
+                    
+                if 'void main' in line:
+                    main_reached = True
+                                       
+                if input_body_reached and not main_reached:
+                    append_shader_file += (line + '\n')
+                    
+            main_reached = False
+                    
+            for line in shaderstr.split('\n'):
+                if 'void main' in line:
+                    main_reached = True
+                    
+                if 'outputNormal = texture(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5);' in line:
+                    end_reached = True
+                    # print(line)
+                    # print('end reached')
+                    
+                if main_reached and not end_reached:
+                    append_shader_file += (line + '\n')
+                    
+            append_shader_file += (input_frag_main_mod + '\n')
+            
+            end_reached = False
+            
+            for line in shaderstr.split('\n'):
+                if 'outputNormal = texture(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5);' in line:
+                    end_reached = True
+                    # print('end reached')
+                    
+                if end_reached:
+                    append_shader_file += (line + '\n')
+                        
+            out_v = open('ibl_f_' + str(base.complexpbr_append_shader_count) + '.frag', 'w')
+            
+            for line in append_shader_file.split('\n'):
+                out_v.write(line)
+                out_v.write('\n')
+                
+            out_v.close()
+                
+            frag = 'ibl_f_' + str(base.complexpbr_append_shader_count) + '.frag'
+    
+    # vertex modification begins
+    append_shader_file = ''
+    input_body_reached = False
+    main_reached = False
+    end_reached = False
+    
+    if input_vert_body_mod != '' or input_vert_main_mod != '':
+        extant_append_shaders = []
+        local_shader_dir = os.listdir()
         
-        for line in append_shader_file.split('\n'):
-            out_v.write(line)
-            out_v.write('\n')
+        for item in local_shader_dir:
+            if 'ibl_v_' in item:
+                item = item.strip('ibl_v_').strip('.vert')
+                extant_append_shaders.append(int(item))
+
+        extant_append_shaders = sorted(extant_append_shaders)
+        
+        try:
+            top_extant_shader_val = extant_append_shaders.pop()
+            base.complexpbr_append_shader_count = top_extant_shader_val + 1
+        except:
+            base.complexpbr_append_shader_count = 1
             
-        out_v.close()
+        with open(vert) as shaderfile:
+            shaderstr = shaderfile.read()
+            for line in shaderstr.split('\n'):
+                append_shader_file += (line + '\n')
+                if 'uniform float displacement_scale;' in line:
+                    break
+                    
+            append_shader_file += (input_vert_body_mod + '\n')
+            # print(append_shader_file)
             
-        frag = 'ibl_f_' + str(base.complexpbr_append_shader_count) + '.frag'
+            for line in shaderstr.split('\n'):
+                if 'uniform struct p3d_LightSourceParameters {' in line:
+                    # print(line)
+                    # print('input body reached')
+                    input_body_reached = True
+                    
+                if 'void main' in line:
+                    main_reached = True
+                                       
+                if input_body_reached and not main_reached:
+                    append_shader_file += (line + '\n')
+                    
+            main_reached = False
+                    
+            for line in shaderstr.split('\n'):
+                if 'void main' in line:
+                    main_reached = True
+                    
+                if 'gl_Position = p3d_ProjectionMatrix * model_view_displaced_vertex;' in line:
+                    end_reached = True
+                    # print(line)
+                    # print('end reached')
+                    
+                if main_reached and not end_reached:
+                    append_shader_file += (line + '\n')
+                    
+            append_shader_file += (input_vert_main_mod + '\n')
+            
+            end_reached = False
+            
+            for line in shaderstr.split('\n'):
+                if 'gl_Position = p3d_ProjectionMatrix * model_view_displaced_vertex;' in line:
+                    end_reached = True
+                    # print('end reached')
+                    
+                if end_reached:
+                    append_shader_file += (line + '\n')
+                        
+            out_v = open('ibl_v_' + str(base.complexpbr_append_shader_count) + '.vert', 'w')
+            
+            for line in append_shader_file.split('\n'):
+                out_v.write(line)
+                out_v.write('\n')
+                
+            out_v.close()
+                
+            vert = 'ibl_v_' + str(base.complexpbr_append_shader_count) + '.vert'
 
         base.complexpbr_shader = Shader.load(Shader.SL_GLSL, vert, frag)
 
