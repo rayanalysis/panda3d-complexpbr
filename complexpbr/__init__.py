@@ -11,17 +11,18 @@ complexpbr_init = True
 shader_dir = os.path.join(os.path.dirname(__file__), '')
 
 def remove_shader_files():
-    os.remove('ibl_v.vert')
-    os.remove('ibl_f.frag')
+    os.remove(base.complexpbr_custom_dir + 'ibl_v.vert')
+    os.remove(base.complexpbr_custom_dir + 'ibl_f.frag')
     
     try:
-        os.remove('min_v.vert')
-        os.remove('min_f.frag')
+        os.remove(base.complexpbr_custom_dir + 'min_v.vert')
+        os.remove(base.complexpbr_custom_dir + 'min_f.frag')
     except:
         print('complexpbr message: Screenspace shaders are not present for deletion.')
         
     try:
         local_shader_dir = os.listdir()
+        local_shader_dir += base.complexpbr_custom_dir
         
         for item in local_shader_dir:
             if 'ibl_f_' in item:
@@ -31,7 +32,7 @@ def remove_shader_files():
                 os.remove(item)
     
     except:
-        print('append_shader() cleanup was not successful.')
+        pass
 
         
 def set_cubebuff_inactive():
@@ -65,13 +66,13 @@ def rotate_cubemap(task):
 def screenspace_init():
     with open(os.path.join(shader_dir, 'min_v.vert')) as shaderfile:
         shaderstr = shaderfile.read()
-        out_v = open('min_v.vert', 'w')
+        out_v = open(base.complexpbr_custom_dir + 'min_v.vert', 'w')
         out_v.write(shaderstr)
         out_v.close()
 
     with open(os.path.join(shader_dir, 'min_f.frag')) as shaderfile:
         shaderstr = shaderfile.read()
-        out_v = open('min_f.frag', 'w')
+        out_v = open(base.complexpbr_custom_dir + 'min_f.frag', 'w')
         out_v.write(shaderstr)
         out_v.close()
 
@@ -107,8 +108,8 @@ def screenspace_init():
     hsv_g = 1.0
     hsv_b = 1.0
 
-    vert = "min_v.vert"
-    frag = "min_f.frag"
+    vert = base.complexpbr_custom_dir + 'min_v.vert'
+    frag = base.complexpbr_custom_dir + 'min_f.frag'
     shader = Shader.load(Shader.SL_GLSL, vert, frag)
     screen_quad.set_shader(shader)
     screen_quad.set_shader_input("window_size", window_size)
@@ -179,26 +180,29 @@ def complexpbr_rig_init(node, intensity, lut_fill):
 def skin(node):
     node.set_attrib(base.complexpbr_skin_attrib)
 
-def apply_shader(node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
+def apply_shader(node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False,
+custom_dir=''):
     global complexpbr_init
+    
+    base.complexpbr_custom_dir = custom_dir
     
     with open(os.path.join(shader_dir, 'ibl_v.vert')) as shaderfile:
         shaderstr = shaderfile.read()
-        out_v = open('ibl_v.vert', 'w')
+        out_v = open(base.complexpbr_custom_dir + 'ibl_v.vert', 'w')
         out_v.write(shaderstr)
         out_v.close()
 
     with open(os.path.join(shader_dir, 'ibl_f.frag')) as shaderfile:
         shaderstr = shaderfile.read()
-        out_v = open('ibl_f.frag', 'w')
+        out_v = open(base.complexpbr_custom_dir + 'ibl_f.frag', 'w')
         out_v.write(shaderstr)
         out_v.close()
 
     if complexpbr_init:
         complexpbr_init = False
         
-        vert = "ibl_v.vert"
-        frag = "ibl_f.frag"
+        vert = base.complexpbr_custom_dir + 'ibl_v.vert'
+        frag = base.complexpbr_custom_dir + 'ibl_f.frag'
 
         base.complexpbr_shader = Shader.load(Shader.SL_GLSL, vert, frag)
 
@@ -215,23 +219,24 @@ def apply_shader(node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[
 def append_shader(node=None,frag_body_mod='',frag_main_mod='',vert_body_mod='',vert_main_mod='',intensity=1.0,env_cam_pos=None,
 env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
 
-    with open(os.path.join(shader_dir, 'ibl_v.vert')) as shaderfile:
+    with open(os.path.join(shader_dir + base.complexpbr_custom_dir, 'ibl_v.vert')) as shaderfile:
         shaderstr = shaderfile.read()
-        out_v = open('ibl_v.vert', 'w')
+        out_v = open(base.complexpbr_custom_dir + 'ibl_v.vert', 'w')
         out_v.write(shaderstr)
         out_v.close()
 
-    with open(os.path.join(shader_dir, 'ibl_f.frag')) as shaderfile:
+    with open(os.path.join(shader_dir + base.complexpbr_custom_dir, 'ibl_f.frag')) as shaderfile:
         shaderstr = shaderfile.read()
-        out_v = open('ibl_f.frag', 'w')
+        out_v = open(base.complexpbr_custom_dir + 'ibl_f.frag', 'w')
         out_v.write(shaderstr)
         out_v.close()
 
-    vert = "ibl_v.vert"
-    frag = "ibl_f.frag"
+    vert = base.complexpbr_custom_dir + "ibl_v.vert"
+    frag = base.complexpbr_custom_dir + "ibl_f.frag"
 
     extant_append_shaders = []
     local_shader_dir = os.listdir()
+    local_shader_dir += base.complexpbr_custom_dir
     
     for item in local_shader_dir:
         if 'ibl_f_' in item:
@@ -307,7 +312,7 @@ env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
                 if end_reached:
                     append_shader_file += (line + '\n')
                         
-            out_v = open('ibl_f_' + str(base.complexpbr_append_shader_count) + '.frag', 'w')
+            out_v = open(base.complexpbr_custom_dir + 'ibl_f_' + str(base.complexpbr_append_shader_count) + '.frag', 'w')
             
             for line in append_shader_file.split('\n'):
                 out_v.write(line)
@@ -315,7 +320,7 @@ env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
                 
             out_v.close()
                 
-            frag = 'ibl_f_' + str(base.complexpbr_append_shader_count) + '.frag'
+            frag = base.complexpbr_custom_dir + 'ibl_f_' + str(base.complexpbr_append_shader_count) + '.frag'
     
     # vertex modification begins
     append_shader_file = ''
@@ -326,6 +331,7 @@ env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
     if input_vert_body_mod != '' or input_vert_main_mod != '':
         extant_append_shaders = []
         local_shader_dir = os.listdir()
+        local_shader_dir += base.complexpbr_custom_dir
         
         for item in local_shader_dir:
             if 'ibl_v_' in item:
@@ -388,7 +394,7 @@ env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
                 if end_reached:
                     append_shader_file += (line + '\n')
                         
-            out_v = open('ibl_v_' + str(base.complexpbr_append_shader_count) + '.vert', 'w')
+            out_v = open(base.complexpbr_custom_dir + 'ibl_v_' + str(base.complexpbr_append_shader_count) + '.vert', 'w')
             
             for line in append_shader_file.split('\n'):
                 out_v.write(line)
@@ -396,7 +402,7 @@ env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
                 
             out_v.close()
                 
-            vert = 'ibl_v_' + str(base.complexpbr_append_shader_count) + '.vert'
+            vert = base.complexpbr_custom_dir + 'ibl_v_' + str(base.complexpbr_append_shader_count) + '.vert'
 
         base.complexpbr_shader = Shader.load(Shader.SL_GLSL, vert, frag)
 
