@@ -21,8 +21,7 @@ def remove_shader_files():
         print('complexpbr message: Screenspace shaders are not present for deletion.')
         
     try:
-        local_shader_dir = os.listdir()
-        local_shader_dir += base.complexpbr_custom_dir
+        local_shader_dir = os.listdir(base.complexpbr_custom_dir)
         
         for item in local_shader_dir:
             if 'ibl_f_' in item:
@@ -34,7 +33,6 @@ def remove_shader_files():
     except:
         pass
 
-        
 def set_cubebuff_inactive():
     def set_thread():
         time.sleep(.5)
@@ -219,13 +217,13 @@ custom_dir=''):
 def append_shader(node=None,frag_body_mod='',frag_main_mod='',vert_body_mod='',vert_main_mod='',intensity=1.0,env_cam_pos=None,
 env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
 
-    with open(os.path.join(shader_dir + base.complexpbr_custom_dir, 'ibl_v.vert')) as shaderfile:
+    with open(os.path.join(shader_dir, 'ibl_v.vert')) as shaderfile:
         shaderstr = shaderfile.read()
         out_v = open(base.complexpbr_custom_dir + 'ibl_v.vert', 'w')
         out_v.write(shaderstr)
         out_v.close()
 
-    with open(os.path.join(shader_dir + base.complexpbr_custom_dir, 'ibl_f.frag')) as shaderfile:
+    with open(os.path.join(shader_dir, 'ibl_f.frag')) as shaderfile:
         shaderstr = shaderfile.read()
         out_v = open(base.complexpbr_custom_dir + 'ibl_f.frag', 'w')
         out_v.write(shaderstr)
@@ -235,9 +233,8 @@ env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
     frag = base.complexpbr_custom_dir + "ibl_f.frag"
 
     extant_append_shaders = []
-    local_shader_dir = os.listdir()
-    local_shader_dir += base.complexpbr_custom_dir
-    
+    local_shader_dir = os.listdir(base.complexpbr_custom_dir)
+
     for item in local_shader_dir:
         if 'ibl_f_' in item:
             item = item.strip('ibl_f_').strip('.frag')
@@ -330,8 +327,7 @@ env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
     
     if input_vert_body_mod != '' or input_vert_main_mod != '':
         extant_append_shaders = []
-        local_shader_dir = os.listdir()
-        local_shader_dir += base.complexpbr_custom_dir
+        local_shader_dir = os.listdir(base.complexpbr_custom_dir)
         
         for item in local_shader_dir:
             if 'ibl_v_' in item:
