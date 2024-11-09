@@ -158,7 +158,7 @@ def skin(node):
     node.set_attrib(base.complexpbr_skin_attrib)
 
 def apply_shader(node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False,
-custom_dir='',default_lighting=False,shadow_boost=1.5):
+custom_dir='',default_lighting=False,shadow_boost=0.01):
     global complexpbr_init
     
     base.complexpbr_custom_dir = custom_dir
@@ -419,7 +419,7 @@ def remove_shader_files():
         pass
         
 def complexpbr_default_lighting():
-    amb_light = AmbientLight('amblight')
+    amb_light = AmbientLight('amb_light')
     amb_light.set_color(Vec4(Vec3(1),1))
     amb_light_node = base.render.attach_new_node(amb_light)
     base.render.set_light(amb_light_node)

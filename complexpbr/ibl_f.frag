@@ -206,7 +206,7 @@ void main()
         float shadowSpot = smoothstep(spotcutoff-SPOTSMOOTH, spotcutoff+SPOTSMOOTH, spotcos);
 
         float shadowCaster = textureProj(p3d_LightSource[i].shadowMap, v_shadow_pos[i]);
-        float shadow = (shadowSpot * shadowCaster * attenuation_factor) * shadow_boost;
+        float shadow = shadowSpot * shadowCaster * attenuation_factor;
 
         FunctionParameters func_params;
         func_params.n_dot_l = clamp(dot(N, l), 0.0, 1.0);
@@ -226,7 +226,7 @@ void main()
         vec3 diffuse_contrib = (diffuse_color * p3d_LightModel.ambient.rgb) * diffuse_function(func_params);
         vec3 spec_contrib = vec3(F0 * V * D);
         color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib) * shadow;
-        color.rgb += albedo.rgb * (roughness * shadow_boost);
+        color.rgb += albedo.rgb * shadow_boost; // node-level shadow boost heuristic
     }
     
     vec3 ibl = getIBL(N, V, F0, diffuse_color, roughness);
