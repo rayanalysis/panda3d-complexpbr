@@ -1,37 +1,15 @@
 import os, time
 from pathlib import Path
 from panda3d.core import Shader, ShaderAttrib, TextureStage, TexGenAttrib, NodePath
-from panda3d.core import Texture, ATS_none, Vec3, AuxBitplaneAttrib, PNMImage, AntialiasAttrib
+from panda3d.core import Texture, ATS_none, Vec3, Vec4, AuxBitplaneAttrib, PNMImage, AntialiasAttrib
 from panda3d.core import load_prc_file_data
 from direct.stdpy import threading2
 from direct.filter.FilterManager import FilterManager
+from panda3d.core import PointLight, Spotlight, AmbientLight, PerspectiveLens
 
 
 complexpbr_init = True
 shader_dir = os.path.join(os.path.dirname(__file__), '')
-
-def remove_shader_files():
-    os.remove(base.complexpbr_custom_dir + 'ibl_v.vert')
-    os.remove(base.complexpbr_custom_dir + 'ibl_f.frag')
-    
-    try:
-        os.remove(base.complexpbr_custom_dir + 'min_v.vert')
-        os.remove(base.complexpbr_custom_dir + 'min_f.frag')
-    except:
-        print('complexpbr message: Screenspace shaders are not present for deletion.')
-        
-    try:
-        local_shader_dir = os.listdir(base.complexpbr_custom_dir)
-        
-        for item in local_shader_dir:
-            if 'ibl_f_' in item:
-                os.remove(item)
-            
-            elif 'ibl_v_' in item:
-                os.remove(item)
-    
-    except:
-        pass
 
 def set_cubebuff_inactive():
     def set_thread():
@@ -133,7 +111,7 @@ def screenspace_init():
     base.screen_quad = screen_quad
     base.render.set_antialias(AntialiasAttrib.MMultisample)
 
-def complexpbr_rig_init(node, intensity, lut_fill):
+def complexpbr_rig_init(node, intensity, lut_fill, shadow_boost):
     load_prc_file_data('', 'hardware-animated-vertices #t')
     load_prc_file_data('', 'framebuffer-srgb #t')
     load_prc_file_data('', 'framebuffer-depth-32 1')
@@ -166,6 +144,7 @@ def complexpbr_rig_init(node, intensity, lut_fill):
     node.set_shader_input("cubemaptex", base.cube_buffer.get_texture())
     node.set_shader_input("brdfLUT", brdf_lut_tex)
     node.set_shader_input("ao", intensity)
+    node.set_shader_input("shadow_boost", shadow_boost)
     node.set_shader_input("displacement_scale", displacement_scale_val)
     node.set_shader_input("displacement_map", displacement_map)
     node.set_shader_input("specular_factor", specular_factor)
@@ -179,7 +158,7 @@ def skin(node):
     node.set_attrib(base.complexpbr_skin_attrib)
 
 def apply_shader(node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False,
-custom_dir=''):
+custom_dir='',default_lighting=False,shadow_boost=0.0):
     global complexpbr_init
     
     base.complexpbr_custom_dir = custom_dir
@@ -212,7 +191,13 @@ custom_dir=''):
         base.complexpbr_z_tracking = complexpbr_z_tracking
         base.complexpbr_append_shader_count = 0
 
-    complexpbr_rig_init(node, intensity=intensity, lut_fill=lut_fill)
+    complexpbr_rig_init(node, intensity=intensity, lut_fill=lut_fill, shadow_boost=shadow_boost)
+    
+    if default_lighting:
+        try:
+            complexpbr_default_lighting()
+        except:
+            print('complexpbr message: Default lighting setup failed.')
     
 def append_shader(node=None,frag_body_mod='',frag_main_mod='',vert_body_mod='',vert_main_mod='',intensity=1.0,env_cam_pos=None,
 env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
@@ -410,6 +395,51 @@ env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
         base.complexpbr_z_tracking = complexpbr_z_tracking
 
     complexpbr_rig_init(node, intensity=intensity, lut_fill=lut_fill)
+    
+def remove_shader_files():
+    os.remove(base.complexpbr_custom_dir + 'ibl_v.vert')
+    os.remove(base.complexpbr_custom_dir + 'ibl_f.frag')
+    
+    try:
+        os.remove(base.complexpbr_custom_dir + 'min_v.vert')
+        os.remove(base.complexpbr_custom_dir + 'min_f.frag')
+    except:
+        print('complexpbr message: Screenspace shaders are not present for deletion.')
+        
+    try:
+        local_shader_dir = os.listdir(base.complexpbr_custom_dir)
+        
+        for item in local_shader_dir:
+            if 'ibl_f_' in item:
+                os.remove(item)
+            
+            elif 'ibl_v_' in item:
+                os.remove(item)
+    except:
+        pass
+        
+def complexpbr_default_lighting():
+    amb_light = AmbientLight('amb_light')
+    amb_light.set_color(Vec4(Vec3(1),1))
+    amb_light_node = base.render.attach_new_node(amb_light)
+    base.render.set_light(amb_light_node)
+
+    slight_1 = Spotlight('slight_1')
+    slight_1.set_color(Vec4(Vec3(5),1))
+    slight_1.set_shadow_caster(True, 8192, 8192)
+    # slight_1.set_attenuation((0.5,0,0.000005))
+    lens = PerspectiveLens()
+    slight_1.set_lens(lens)
+    slight_1.get_lens().set_fov(120)
+    slight_1_node = base.render.attach_new_node(slight_1)
+    slight_1_node.set_pos(50, 50, 90)
+    slight_1_node.look_at(0,0,0.5)
+    base.render.set_light(slight_1_node)
+
+    env_light_1 = PointLight('env_light_1')
+    env_light_1.set_color(Vec4(Vec3(1),1))
+    env_light_1 = base.render.attach_new_node(env_light_1)
+    env_light_1.set_pos(0,0,-1)
 
 class Shaders:
     def __init__(self):

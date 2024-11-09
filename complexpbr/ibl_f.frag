@@ -22,6 +22,7 @@ in vec4 v_shadow_pos[MAX_LIGHTS];
 
 uniform float ao;
 uniform float specular_factor;
+uniform float shadow_boost;
 
 const float LIGHT_CUTOFF = 0.001;
 const float SPOTSMOOTH = 0.1;
@@ -91,9 +92,9 @@ vec3 getIBL(vec3 N, vec3 V, vec3 F0, vec3 diffuse_color, float roughness)
     if (roughness < 0.7) 
         prefilteredColor = textureLod(cubemaptex, R, roughness * MAX_REFLECTION_LOD).rgb;
     else if (roughness >= 0.7)
-        if (roughness < 0.9)
+        if (roughness < 0.99)
             prefilteredColor = textureLod(cubemaptex, R, roughness * MAX_REFLECTION_LOD).rgb * vec3(0.04);
-    else if (roughness >= 0.9) 
+    else if (roughness >= 0.99) 
         prefilteredColor = prefilteredColor;
     vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
@@ -225,6 +226,7 @@ void main()
         vec3 diffuse_contrib = (diffuse_color * p3d_LightModel.ambient.rgb) * diffuse_function(func_params);
         vec3 spec_contrib = vec3(F0 * V * D);
         color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib) * shadow;
+        color.rgb += albedo.rgb * shadow_boost; // node-level shadow boost heuristic
     }
     
     vec3 ibl = getIBL(N, V, F0, diffuse_color, roughness);
