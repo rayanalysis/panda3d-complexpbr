@@ -158,7 +158,7 @@ def skin(node):
     node.set_attrib(base.complexpbr_skin_attrib)
 
 def apply_shader(node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False,
-custom_dir='',default_lighting=False,shadow_boost=0.01):
+custom_dir='',default_lighting=False,shadow_boost=0.0):
     global complexpbr_init
     
     base.complexpbr_custom_dir = custom_dir
