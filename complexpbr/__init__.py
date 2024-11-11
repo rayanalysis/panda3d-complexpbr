@@ -200,25 +200,16 @@ custom_dir='',default_lighting=False,shadow_boost=0.0):
             print('complexpbr message: Default lighting setup failed.')
     
 def append_shader(node=None,frag_body_mod='',frag_main_mod='',vert_body_mod='',vert_main_mod='',intensity=1.0,env_cam_pos=None,
-env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
-
-    with open(os.path.join(shader_dir, 'ibl_v.vert')) as shaderfile:
-        shaderstr = shaderfile.read()
-        out_v = open(base.complexpbr_custom_dir + 'ibl_v.vert', 'w')
-        out_v.write(shaderstr)
-        out_v.close()
-
-    with open(os.path.join(shader_dir, 'ibl_f.frag')) as shaderfile:
-        shaderstr = shaderfile.read()
-        out_v = open(base.complexpbr_custom_dir + 'ibl_f.frag', 'w')
-        out_v.write(shaderstr)
-        out_v.close()
+env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False,shadow_boost=0.0):
 
     vert = base.complexpbr_custom_dir + "ibl_v.vert"
     frag = base.complexpbr_custom_dir + "ibl_f.frag"
 
     extant_append_shaders = []
-    local_shader_dir = os.listdir(base.complexpbr_custom_dir)
+    if base.complexpbr_custom_dir == '':
+        local_shader_dir = os.listdir()
+    else:
+        local_shader_dir = os.listdir(base.complexpbr_custom_dir)
 
     for item in local_shader_dir:
         if 'ibl_f_' in item:
@@ -250,7 +241,7 @@ env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
             shaderstr = shaderfile.read()
             for line in shaderstr.split('\n'):
                 append_shader_file += (line + '\n')
-                if 'uniform float specular_factor' in line:
+                if 'uniform float shadow_boost' in line:
                     break
                     
             append_shader_file += (input_frag_body_mod + '\n')
@@ -312,8 +303,7 @@ env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
     
     if input_vert_body_mod != '' or input_vert_main_mod != '':
         extant_append_shaders = []
-        local_shader_dir = os.listdir(base.complexpbr_custom_dir)
-        
+
         for item in local_shader_dir:
             if 'ibl_v_' in item:
                 item = item.strip('ibl_v_').strip('.vert')
@@ -385,17 +375,9 @@ env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False):
                 
             vert = base.complexpbr_custom_dir + 'ibl_v_' + str(base.complexpbr_append_shader_count) + '.vert'
 
-        base.complexpbr_shader = Shader.load(Shader.SL_GLSL, vert, frag)
-
-        base.complexpbr_map = NodePath('cuberig')
-        base.cube_buffer = base.win.make_cube_map('cubemap', env_res, base.complexpbr_map)
-        base.complexpbr_map.reparent_to(base.render)
-        base.complexpbr_map_z = 0
-        base.env_cam_pos = env_cam_pos
-        base.complexpbr_z_tracking = complexpbr_z_tracking
-
-    complexpbr_rig_init(node, intensity=intensity, lut_fill=lut_fill)
-    
+    append_shader = Shader.load(Shader.SL_GLSL, vert, frag)
+    node.set_shader(append_shader)
+        
 def remove_shader_files():
     os.remove(base.complexpbr_custom_dir + 'ibl_v.vert')
     os.remove(base.complexpbr_custom_dir + 'ibl_f.frag')
