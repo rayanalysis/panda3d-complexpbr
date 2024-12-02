@@ -7,9 +7,10 @@ uniform vec2 window_size;
 uniform mat4 p3d_ViewMatrix;
 uniform mat4 p3d_ProjectionMatrixInverse;
 
-// SSAO parameters with default values
+// SSAO
 const float radius = 0.5;
 const float bias = 0.025;
+uniform int ssao_samples;
 
 // Bloom
 uniform float bloom_intensity;
@@ -22,9 +23,6 @@ uniform float ssr_intensity;
 uniform float ssr_step;
 uniform float ssr_fresnel_pow;
 uniform int ssr_samples;
-
-// SSAO
-uniform int ssao_samples;
 
 // HSV
 uniform float hsv_r = 1.0;
@@ -101,7 +99,6 @@ SSRout screenSpaceReflection(vec2 uv, float linearDepth, vec3 normal)
     screenSpaceRay.xy /= screenSpaceRay.z;
     screenSpaceRay.x = 0.0;
 
-    float ssr_step = 0.75;
     vec2 rayStep = screenSpaceRay.xy * ssr_step;
     vec2 rayPosition = uv;
 
