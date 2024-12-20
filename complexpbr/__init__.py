@@ -393,10 +393,10 @@ def remove_shader_files():
         
         for item in local_shader_dir:
             if 'ibl_f_' in item:
-                os.remove(item)
+                os.remove(base.complexpbr_custom_dir + item)
             
             elif 'ibl_v_' in item:
-                os.remove(item)
+                os.remove(base.complexpbr_custom_dir + item)
     except:
         pass
         
