@@ -379,27 +379,18 @@ env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False,shadow_boost=0.0)
     node.set_shader(append_shader)
         
 def remove_shader_files():
-    os.remove(base.complexpbr_custom_dir + 'ibl_v.vert')
-    os.remove(base.complexpbr_custom_dir + 'ibl_f.frag')
-    
-    try:
-        os.remove(base.complexpbr_custom_dir + 'min_v.vert')
-        os.remove(base.complexpbr_custom_dir + 'min_f.frag')
-    except:
-        print('complexpbr message: Screenspace shaders are not present for deletion.')
-        
-    try:
+    if base.complexpbr_custom_dir == '':
+        local_shader_dir = os.listdir()
+    else:
         local_shader_dir = os.listdir(base.complexpbr_custom_dir)
-        
-        for item in local_shader_dir:
-            if 'ibl_f_' in item:
-                os.remove(item)
-            
-            elif 'ibl_v_' in item:
-                os.remove(item)
-    except:
-        pass
-        
+
+    shader_file_strings = ['ibl_f', 'ibl_v', 'min_v', 'min_f']
+
+    for item in local_shader_dir:
+        for fs in shader_file_strings:
+            if fs in item:
+                os.remove(base.complexpbr_custom_dir + item)
+
 def complexpbr_default_lighting():
     amb_light = AmbientLight('amb_light')
     amb_light.set_color(Vec4(Vec3(1),1))
