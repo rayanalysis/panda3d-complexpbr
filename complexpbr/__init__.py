@@ -37,6 +37,8 @@ def rotate_cubemap(task):
         cam_relative_pos[2] = cam_relative_pos[2]-(2 * cam_relative_pos[2])
         base.env_cam_pos = cam_relative_pos
 
+    base.cam_pos = cam_pos
+    
     return task.cont
 
 def screenspace_init():
@@ -78,6 +80,9 @@ def screenspace_init():
     ssr_step = 4.0
     ssr_fresnel_pow = 3.0
     ssr_samples = 0  # default SSR to 0.0 / off
+    screen_ray_factor = 0.1
+    ssr_depth_cutoff = 0.6
+    ssr_depth_min = 0.5
     ssao_samples = 6
     reflection_threshold = 0.1
     hsv_r = 1.0
@@ -102,6 +107,9 @@ def screenspace_init():
     screen_quad.set_shader_input("ssr_step", ssr_step)
     screen_quad.set_shader_input("ssr_fresnel_pow", ssr_fresnel_pow)
     screen_quad.set_shader_input("ssr_samples", ssr_samples)
+    screen_quad.set_shader_input("screen_ray_factor", screen_ray_factor)
+    screen_quad.set_shader_input("ssr_depth_cutoff", ssr_depth_cutoff)
+    screen_quad.set_shader_input("ssr_depth_min", ssr_depth_min)
     screen_quad.set_shader_input("ssao_samples", ssao_samples)
     screen_quad.set_shader_input("reflection_threshold", reflection_threshold)
     screen_quad.set_shader_input("hsv_r", hsv_r)

@@ -23,6 +23,9 @@ uniform float ssr_intensity;
 uniform float ssr_step;
 uniform float ssr_fresnel_pow;
 uniform int ssr_samples;
+uniform float screen_ray_factor;
+uniform float ssr_depth_cutoff;
+uniform float ssr_depth_min;
 
 // HSV
 uniform float hsv_r = 1.0;
@@ -94,28 +97,32 @@ SSRout screenSpaceReflection(vec2 uv, float linearDepth, vec3 normal)
     viewPos = (p3d_ProjectionMatrixInverse * vec4(viewPos, 1.0)).xyz;
     vec3 reflect_color = vec3(0.0);
 
-    vec3 reflectedRay = reflect(normalize(viewPos), normal);
+    vec3 reflectedRay = reflect(viewPos, normal);
     vec3 screenSpaceRay = (p3d_ProjectionMatrixInverse * vec4(reflectedRay, 0.0)).xyz;
     screenSpaceRay.xy /= screenSpaceRay.z;
-    screenSpaceRay.x = 0.0;
 
-    vec2 rayStep = screenSpaceRay.xy * ssr_step;
+    vec2 rayStep = screenSpaceRay.xy * screen_ray_factor;
     vec2 rayPosition = uv;
 
     for (int i = 0; i < ssr_samples; i++)
     {
         rayPosition -= rayStep;
-        rayPosition = clamp(rayPosition, vec2(0.0), vec2(1.0));
 
         float depth = 1.0 - texture(depth_tex, rayPosition).r + 0.5;
         vec3 position = vec3(rayPosition * 2.0 - 1.0, depth);
         position = (p3d_ProjectionMatrixInverse * vec4(position, 1.0)).xyz;
 
         if (abs(viewPos.z - position.z) < ssr_step)
-        {
-            float fresnel = pow(1.0 - dot(normal, normalize(viewPos)), ssr_fresnel_pow);
-            vec3 color = texture(scene_tex, rayPosition).rgb;
-            reflect_color = mix(reflect_color, color, fresnel);
+        {   
+            if (depth <= ssr_depth_cutoff)
+            {
+                if (depth >= ssr_depth_min)
+                {
+                    float fresnel = pow(1.0 - dot(normal, normalize(viewPos)), ssr_fresnel_pow);
+                    vec3 color = texture(scene_tex, rayPosition).rgb;
+                    reflect_color = mix(reflect_color, color, fresnel);
+                }
+            }
         }
     }
 
