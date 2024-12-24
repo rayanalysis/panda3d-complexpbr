@@ -39,6 +39,9 @@ uniform float cameraFar;
 // screenspace-level global reflection intensity
 uniform float reflection_threshold;
 
+// final brightness factor
+uniform float final_brightness;
+
 in vec2 texcoord;
 in vec3 tbn_tangent;
 in vec3 tbn_bitangent;
@@ -283,11 +286,12 @@ void main() {
     // apply SSAO to the final color
     float occlusion = ssao(texcoord, viewPos, viewNormal);
     color *= occlusion;
-
-    o_color = vec4(bloomAA(color, texcoord), 1.0);
-    // o_color = vec4(occlusion, 0, 0, 1.0);
+    // combined bloom/AA loop
+    color = bloomAA(color, texcoord);
 
     vec3 hsvColor = rgb2hsv(color);
     hsvColor *= vec3(hsv_r, hsv_g, hsv_b);
     color = hsv2rgb(hsvColor);
+    
+    o_color = vec4(color * vec3(final_brightness), 1.0);
 }

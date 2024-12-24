@@ -89,6 +89,7 @@ def screenspace_init():
     hsv_r = 1.0
     hsv_g = 1.0
     hsv_b = 1.0
+    final_brightness = 1.0
 
     vert = base.complexpbr_custom_dir + 'min_v.vert'
     frag = base.complexpbr_custom_dir + 'min_f.frag'
@@ -116,6 +117,7 @@ def screenspace_init():
     screen_quad.set_shader_input("hsv_r", hsv_r)
     screen_quad.set_shader_input("hsv_g", hsv_g)  # HSV saturation adjustment
     screen_quad.set_shader_input("hsv_b", hsv_b)
+    screen_quad.set_shader_input("final_brightness", final_brightness)
     
     base.screen_quad = screen_quad
     base.render.set_antialias(AntialiasAttrib.MMultisample)
