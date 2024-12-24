@@ -44,6 +44,7 @@ def rotate_cubemap(task):
 def screenspace_init():
     with open(os.path.join(shader_dir, 'min_v.vert')) as shaderfile:
         shaderstr = shaderfile.read()
+        remove_ss_files()
         out_v = open(base.complexpbr_custom_dir + 'min_v.vert', 'w')
         out_v.write(shaderstr)
         out_v.close()
@@ -173,6 +174,7 @@ custom_dir='',default_lighting=False,shadow_boost=0.0):
     
     with open(os.path.join(shader_dir, 'ibl_v.vert')) as shaderfile:
         shaderstr = shaderfile.read()
+        remove_ibl_files()
         out_v = open(base.complexpbr_custom_dir + 'ibl_v.vert', 'w')
         out_v.write(shaderstr)
         out_v.close()
@@ -385,14 +387,36 @@ env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False,shadow_boost=0.0)
 
     append_shader = Shader.load(Shader.SL_GLSL, vert, frag)
     node.set_shader(append_shader)
-        
-def remove_shader_files():
+
+def create_locate_base_dir():
     if base.complexpbr_custom_dir == '':
         local_shader_dir = os.listdir()
     else:
         local_shader_dir = os.listdir(base.complexpbr_custom_dir)
+        
+    return local_shader_dir
 
-    shader_file_strings = ['ibl_f', 'ibl_v', 'min_v', 'min_f']
+def remove_shader_files():
+    local_shader_dir = create_locate_base_dir()
+    shader_file_strings = ['ibl_f', 'ibl_v', 'min_f', 'min_v']
+
+    for item in local_shader_dir:
+        for fs in shader_file_strings:
+            if fs in item:
+                os.remove(base.complexpbr_custom_dir + item)
+                
+def remove_ibl_files():
+    local_shader_dir = create_locate_base_dir()
+    shader_file_strings = ['ibl_f', 'ibl_v']
+
+    for item in local_shader_dir:
+        for fs in shader_file_strings:
+            if fs in item:
+                os.remove(base.complexpbr_custom_dir + item)
+                
+def remove_ss_files():
+    local_shader_dir = create_locate_base_dir()
+    shader_file_strings = ['min_f', 'min_v']
 
     for item in local_shader_dir:
         for fs in shader_file_strings:
