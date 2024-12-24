@@ -124,34 +124,26 @@ class main(ShowBase):
         # example of how to set up bloom -- complexpbr.screenspace_init() must have been called first
         screen_quad = base.screen_quad
         
-        bloom_intensity = 5.0  # bloom defaults to 0.0 / off
-        bloom_blur_width = 10
-        bloom_samples = 6
-        bloom_threshold = 0.7
-
-        screen_quad.set_shader_input("bloom_intensity", bloom_intensity)
-        screen_quad.set_shader_input("bloom_threshold", bloom_threshold)
-        screen_quad.set_shader_input("bloom_blur_width", bloom_blur_width)
-        screen_quad.set_shader_input("bloom_samples", bloom_samples)
+        screen_quad.set_shader_input("bloom_intensity", 0.25)
+        screen_quad.set_shader_input("bloom_threshold", 0.3)
+        screen_quad.set_shader_input("bloom_blur_width", 20)
+        screen_quad.set_shader_input("bloom_samples", 4)
         
         # example of how to customize SSR
-        ssr_intensity = 0.5  
-        ssr_step = 4.0
-        ssr_fresnel_pow = 3.0
-        ssr_samples = 128  # ssr_samples defaults to 0 / off
+        screen_quad.set_shader_input('ssr_intensity', 2.0)
+        screen_quad.set_shader_input('reflection_threshold', 1.6)  # subtracts from intensity
+        screen_quad.set_shader_input('ssr_step', 5.75)  # helps determine reflect height
+        screen_quad.set_shader_input('screen_ray_factor', 0.06)  # detail factor
+        screen_quad.set_shader_input('ssr_samples', 1)  # determines total steps
+        screen_quad.set_shader_input('ssr_depth_cutoff', 0.52)
+        screen_quad.set_shader_input('ssr_depth_min', 0.49)
         
-        screen_quad.set_shader_input("ssr_intensity", ssr_intensity)
-        screen_quad.set_shader_input("ssr_step", ssr_step)
-        screen_quad.set_shader_input("ssr_fresnel_pow", ssr_fresnel_pow)
-        screen_quad.set_shader_input("ssr_samples", ssr_samples)
-        
-        # example of how to customize SSAO
-        ssao_samples = 32  # ssao_samples defaults to 8
-        
-        screen_quad.set_shader_input("ssao_samples", ssao_samples)
+        # example of how to customize SSAO 
+        screen_quad.set_shader_input("ssao_samples", 32)  # ssao_samples defaults to 6
         
         # example of how to HSV adjust the final image
         screen_quad.set_shader_input("hsv_g", 1.3)  # hsv_g (saturation factor) defaults to 1.0
+        screen_quad.set_shader_input("final_brightness", 1.3)  # the final multiplicative brightness in screenspace
         
         # example of how to modify the specular contribution
         self.render.set_shader_input("specular_factor", 10.0)  # the specular_factor defaults to 1.0
@@ -192,6 +184,8 @@ As of version 0.5.6, dynamic environmental Z-tracking functionality has been exp
 As of version 0.5.7, shader composition functionality has been expanded. Using "append_shader()", you may provide custom model-level fragment shader functions and modifications to the main loop.
 
 As of version 0.5.8, an approximation of Global Illumination (GI) is provided via the "shadow_boost" (float) shader input. This feature allows node level objects to partially self-illuminate to remain visible all around even when shadowed. Secondly, you may now specify a custom directory for complexpbr-generated shader files, IE complexpbr.apply_shader(..., custom_dir='shaders/') . Thirdly, a default lighting setup is provided as an option to apply_shader(..., default_lighting=True) . Lastly, the node-level vertex shader is now available for modification using "append_shader()".
+
+As of version 0.6.0, new shader inputs have been made available which increase the usability of scene color adjustment, brightness, and SSR. The remove_shader_files() function has been enhanced, and complexpbr now automatically keeps the shader directory clean while regenerating shader files.
 
 ## Requirements:
 
