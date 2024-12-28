@@ -395,7 +395,7 @@ def create_locate_base_dir():
         local_shader_dir = os.listdir()
     else:
         local_shader_dir = os.listdir(base.complexpbr_custom_dir)
-        
+
     return local_shader_dir
 
 def remove_shader_files():
@@ -406,7 +406,7 @@ def remove_shader_files():
         for fs in shader_file_strings:
             if fs in item:
                 os.remove(base.complexpbr_custom_dir + item)
-                
+
 def remove_ibl_files():
     local_shader_dir = create_locate_base_dir()
     shader_file_strings = ['ibl_f', 'ibl_v']
@@ -415,7 +415,7 @@ def remove_ibl_files():
         for fs in shader_file_strings:
             if fs in item:
                 os.remove(base.complexpbr_custom_dir + item)
-                
+
 def remove_ss_files():
     local_shader_dir = create_locate_base_dir()
     shader_file_strings = ['min_f', 'min_v']
