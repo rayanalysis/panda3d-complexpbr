@@ -276,8 +276,7 @@ void main() {
     vec4 depth = texture(depth_tex, texcoord);
     float depth_fl = 1.0 - depth.r + 0.5;
     vec3 viewPos = getViewPos(texcoord, depth_fl);
-    vec3 worldNormal = getViewNormal(tbn_tangent, tbn_bitangent, tbn_normal);
-    vec3 viewNormal = transformNormalToViewSpace(worldNormal);
+    vec3 viewNormal = getViewNormal(tbn_tangent, tbn_bitangent, tbn_normal);
 
     SSRout ssrOut = screenSpaceReflection(texcoord, depth_fl, viewNormal);
     // blend the object color with the reflection color based on the intensity
