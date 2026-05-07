@@ -14,10 +14,9 @@ authors = [
 description = "IBL rendering module supporting real-time reflections and post-processing effects in Panda3D"
 readme = "README.md"
 keywords = ["panda3d", "gamedev", "pbr", "IBL", "real-time"]
-license = {text = "BSD-3-Clause"}
+license = "BSD-3-Clause"
 classifiers = [
     "Development Status :: 4 - Beta",
-    "License :: OSI Approved :: BSD License",
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
