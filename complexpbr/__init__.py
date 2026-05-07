@@ -63,6 +63,10 @@ def screenspace_init():
     depth_tex = Texture("depth_tex")
     normal_tex = Texture("normal_tex")
     all_tex = {}
+    # prevent edge artifacts when rendering the screen_quad scene_tex
+    scene_tex.set_wrap_u(Texture.WM_clamp)
+    scene_tex.set_wrap_v(Texture.WM_clamp)
+    
     screen_quad = filter_manager.render_scene_into(colortex=scene_tex,
                                                    auxbits=auxbits,
                                                    depthtex=depth_tex,
