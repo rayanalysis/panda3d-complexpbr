@@ -15,6 +15,7 @@ description = "IBL rendering module supporting real-time reflections and post-pr
 readme = "README.md"
 keywords = ["panda3d", "gamedev", "pbr", "IBL", "real-time"]
 license = "BSD-3-Clause"
+license-files = ["LICENSE",]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
