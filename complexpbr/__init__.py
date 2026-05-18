@@ -1,4 +1,4 @@
-import os, time
+import os, time, sys
 from pathlib import Path
 from panda3d.core import Shader, ShaderAttrib, TextureStage, TexGenAttrib, NodePath
 from panda3d.core import Texture, ATS_none, Vec3, Vec4, AuxBitplaneAttrib, PNMImage, AntialiasAttrib
@@ -6,10 +6,13 @@ from panda3d.core import load_prc_file_data
 from direct.stdpy import threading2
 from direct.filter.FilterManager import FilterManager
 from panda3d.core import PointLight, Spotlight, AmbientLight, PerspectiveLens
+from importlib import resources 
+from importlib.resources import files
 
 
 complexpbr_init = True
-shader_dir = os.path.join(os.path.dirname(__file__), '')
+# shader_dir = os.path.join(os.path.dirname(__file__), '')
+shader_dir = files('complexpbr')
 
 def set_cubebuff_inactive():
     def set_thread():
@@ -42,19 +45,6 @@ def rotate_cubemap(task):
     return task.cont
 
 def screenspace_init():
-    with open(os.path.join(shader_dir, 'min_v.vert')) as shaderfile:
-        shaderstr = shaderfile.read()
-        remove_ss_files()
-        out_v = open(base.complexpbr_custom_dir + 'min_v.vert', 'w')
-        out_v.write(shaderstr)
-        out_v.close()
-
-    with open(os.path.join(shader_dir, 'min_f.frag')) as shaderfile:
-        shaderstr = shaderfile.read()
-        out_v = open(base.complexpbr_custom_dir + 'min_f.frag', 'w')
-        out_v.write(shaderstr)
-        out_v.close()
-
     auxbits = 0
     auxbits |= AuxBitplaneAttrib.ABOAuxNormal
 
@@ -95,8 +85,8 @@ def screenspace_init():
     hsv_b = 1.0
     final_brightness = 1.0
 
-    vert = base.complexpbr_custom_dir + 'min_v.vert'
-    frag = base.complexpbr_custom_dir + 'min_f.frag'
+    vert = (shader_dir / 'min_v.vert')
+    frag = (shader_dir / 'min_f.frag')
     shader = Shader.load(Shader.SL_GLSL, vert, frag)
     screen_quad.set_shader(shader)
     screen_quad.set_shader_input("window_size", window_size)
@@ -177,26 +167,12 @@ custom_dir='',default_lighting=False,shadow_boost=0.0):
     global complexpbr_init
     
     base.complexpbr_custom_dir = custom_dir
-    
-    with open(os.path.join(shader_dir, 'ibl_v.vert')) as shaderfile:
-        shaderstr = shaderfile.read()
-        remove_ibl_files()
-        out_v = open(base.complexpbr_custom_dir + 'ibl_v.vert', 'w')
-        out_v.write(shaderstr)
-        out_v.close()
-
-    with open(os.path.join(shader_dir, 'ibl_f.frag')) as shaderfile:
-        shaderstr = shaderfile.read()
-        out_v = open(base.complexpbr_custom_dir + 'ibl_f.frag', 'w')
-        out_v.write(shaderstr)
-        out_v.close()
 
     if complexpbr_init:
         complexpbr_init = False
         
-        vert = base.complexpbr_custom_dir + 'ibl_v.vert'
-        frag = base.complexpbr_custom_dir + 'ibl_f.frag'
-
+        vert = (shader_dir / 'ibl_v.vert')
+        frag = (shader_dir / 'ibl_f.frag')
         base.complexpbr_shader = Shader.load(Shader.SL_GLSL, vert, frag)
 
         base.complexpbr_map = NodePath('cuberig')
