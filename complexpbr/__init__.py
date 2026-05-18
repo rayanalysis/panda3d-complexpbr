@@ -11,8 +11,6 @@ from importlib.resources import files
 
 
 complexpbr_init = True
-# shader_dir = os.path.join(os.path.dirname(__file__), '')
-shader_dir = files('complexpbr')
 
 def set_cubebuff_inactive():
     def set_thread():
@@ -44,7 +42,7 @@ def rotate_cubemap(task):
     
     return task.cont
 
-def screenspace_init():
+def screenspace_init(dist=False):
     auxbits = 0
     auxbits |= AuxBitplaneAttrib.ABOAuxNormal
 
@@ -85,8 +83,16 @@ def screenspace_init():
     hsv_b = 1.0
     final_brightness = 1.0
 
-    vert = (shader_dir / 'min_v.vert')
-    frag = (shader_dir / 'min_f.frag')
+    if dist:
+        vert = Path('min_v.vert')
+        frag = Path('min_f.frag')
+
+    else:
+        shader_dir = files('complexpbr')
+        # shader_dir = os.getcwd()
+        vert = (shader_dir / 'min_v.vert')
+        frag = (shader_dir / 'min_f.frag')
+        
     shader = Shader.load(Shader.SL_GLSL, vert, frag)
     screen_quad.set_shader(shader)
     screen_quad.set_shader_input("window_size", window_size)
@@ -161,9 +167,22 @@ def complexpbr_rig_init(node, intensity, lut_fill, shadow_boost):
 
 def skin(node):
     node.set_attrib(base.complexpbr_skin_attrib)
-
+    
+def copy_to_dist():
+    shader_dir = files('complexpbr')
+    # shader_dir = os.getcwd()
+    r_vert = (shader_dir / 'ibl_v.vert').read_text()
+    r_frag = (shader_dir / 'ibl_f.frag').read_text()
+    s_vert = (shader_dir / 'min_v.vert').read_text()
+    s_frag = (shader_dir / 'min_f.frag').read_text()
+    
+    (Path('ibl_v.vert')).write_text(r_vert)
+    (Path('ibl_f.frag')).write_text(r_frag)
+    (Path('min_v.vert')).write_text(s_vert)
+    (Path('min_f.frag')).write_text(s_frag)
+            
 def apply_shader(node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False,
-custom_dir='',default_lighting=False,shadow_boost=0.0):
+custom_dir='',default_lighting=False,shadow_boost=0.0,dist=False):
     global complexpbr_init
     
     base.complexpbr_custom_dir = custom_dir
@@ -171,8 +190,16 @@ custom_dir='',default_lighting=False,shadow_boost=0.0):
     if complexpbr_init:
         complexpbr_init = False
         
-        vert = (shader_dir / 'ibl_v.vert')
-        frag = (shader_dir / 'ibl_f.frag')
+        if dist:
+            vert = Path('ibl_v.vert')
+            frag = Path('ibl_f.frag')
+
+        else:
+            shader_dir = files('complexpbr')
+            # shader_dir = os.getcwd()
+            vert = (shader_dir / 'ibl_v.vert')
+            frag = (shader_dir / 'ibl_f.frag')
+        
         base.complexpbr_shader = Shader.load(Shader.SL_GLSL, vert, frag)
 
         base.complexpbr_map = NodePath('cuberig')
