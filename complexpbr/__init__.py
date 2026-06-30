@@ -76,7 +76,9 @@ def screenspace_init(dist=False):
     screen_ray_factor = 0.1
     ssr_depth_cutoff = 0.6
     ssr_depth_min = 0.5
-    ssao_samples = 6
+    ssao_radius = 0.99
+    ssao_bias = 0.005
+    ssao_samples = 0
     reflection_threshold = 0.1
     hsv_r = 1.0
     hsv_g = 1.0
@@ -112,6 +114,8 @@ def screenspace_init(dist=False):
     screen_quad.set_shader_input("screen_ray_factor", screen_ray_factor)
     screen_quad.set_shader_input("ssr_depth_cutoff", ssr_depth_cutoff)
     screen_quad.set_shader_input("ssr_depth_min", ssr_depth_min)
+    screen_quad.set_shader_input("ssao_radius", ssao_radius)
+    screen_quad.set_shader_input("ssao_bias", ssao_bias)
     screen_quad.set_shader_input("ssao_samples", ssao_samples)
     screen_quad.set_shader_input("reflection_threshold", reflection_threshold)
     screen_quad.set_shader_input("hsv_r", hsv_r)

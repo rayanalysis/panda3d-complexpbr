@@ -6,10 +6,11 @@ uniform sampler2D normal_tex;  // normal
 uniform vec2 window_size;
 uniform mat4 p3d_ViewMatrix;
 uniform mat4 p3d_ProjectionMatrixInverse;
+uniform mat4 p3d_ViewProjectionMatrix;
 
 // SSAO
-const float radius = 0.5;
-const float bias = 0.025;
+uniform float ssao_radius = 0.5;
+uniform float ssao_bias = 0.25;
 uniform int ssao_samples;
 
 // Bloom
@@ -135,27 +136,27 @@ SSRout screenSpaceReflection(vec2 uv, float linearDepth, vec3 normal)
     return result;
 }
 
-float ssao(in vec2 uv, in vec3 viewPos, in vec3 viewNormal)
-{
+float ssao(in vec2 uv, in vec3 viewPos, in vec3 viewNormal) {
     float occlusion = 0.0;
-    float sampleDepth;
+    for (int i = 0; i < ssao_samples; ++i) {
+        vec3 randVec = randomSample(i, uv);
+        vec3 offset = ssao_radius * (viewNormal * randVec.z + vec3(randVec.xy * vec2(ssao_radius), 0.0));
+        vec3 samplePos = viewPos + offset;
 
-    for (int i = 0; i < ssao_samples; ++i)
-    {
-        vec3 randomSampleVec = randomSample(i, uv);
-        vec3 samplePosOffset = radius * (viewNormal * randomSampleVec.z + vec3(randomSampleVec.xy * vec2(radius), 0.0));
-        vec3 ao_sample = viewPos + samplePosOffset;
-        vec4 samplePos = p3d_ProjectionMatrixInverse * vec4(ao_sample, 1.0);
-        samplePos.xyz /= samplePos.w;
-        samplePos.xy = (samplePos.xy * 0.5 + 0.5) * window_size;
+        vec4 proj = p3d_ProjectionMatrixInverse * vec4(samplePos, 1.0);
+        proj.xyz /= proj.w;
+        vec2 sampleUV = proj.xy * 0.5 + 0.5;
 
-        sampleDepth = texture(depth_tex, samplePos.xy / window_size).r;
+        float depthTex = texture(depth_tex, sampleUV).r;
 
-        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(viewPos.z - sampleDepth));
-        occlusion += (sampleDepth <= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;
+        vec4 clip = vec4(sampleUV * 2.0 - 1.0, depthTex * 2.0 - 1.0, 1.0);
+        vec4 viewPosSample = p3d_ProjectionMatrixInverse * clip;
+        viewPosSample.xyz /= viewPosSample.w;
+
+        float hidden = (samplePos.z < viewPosSample.z - ssao_bias) ? 1.0 : 0.0;
+        occlusion += hidden;
     }
-
-    return 1.0 - occlusion / 16.0;
+    return 1.0 - occlusion / float(ssao_samples);
 }
 
 vec3 getViewPos(vec2 uv, float depth)
@@ -284,8 +285,11 @@ void main() {
     color = mix(color, ssrOut.color, max(ssrOut.intensity - reflection_threshold, 0.0));
 
     // apply SSAO to the final color
-    float occlusion = ssao(texcoord, viewPos, viewNormal);
-    color *= occlusion;
+    if (ssao_samples > 0)
+    {
+    	float app_occlusion = ssao(texcoord, viewPos, viewNormal);
+    	color *= app_occlusion;
+    }
     // combined bloom/AA loop
     color = bloomAA(color, texcoord);
 
