@@ -6,14 +6,14 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-version = "0.6.3"
+version = "0.6.4"
 name = "panda3d-complexpbr"
 authors = [
     {name = "Logan Bier"}
 ]
 description = "IBL rendering module supporting real-time reflections and post-processing effects in Panda3D"
 readme = "README.md"
-keywords = ["panda3d", "gamedev", "pbr", "IBL", "real-time"]
+keywords = ["panda3d", "gamedev", "PBR", "IBL", "real-time", "simulation"]
 license = "BSD-3-Clause"
 license-files = ["LICENSE",]
 classifiers = [

@@ -6,7 +6,6 @@ uniform sampler2D normal_tex;  // normal
 uniform vec2 window_size;
 uniform mat4 p3d_ViewMatrix;
 uniform mat4 p3d_ProjectionMatrixInverse;
-uniform mat4 p3d_ViewProjectionMatrix;
 
 // SSAO
 uniform float ssao_radius = 0.5;

@@ -86,6 +86,8 @@ class main(ShowBase):
         # automatically adjust the environment reflections such that they
         # update relative to the base.cam position during movement
         base.complexpbr_z_tracking = True  # defaults to False
+        base.env_cam_pos = Vec3(50, -50, 50)  # fix the cubemap buffer cam somewhere on the scene graph
+        base.env_cam_pos = None  # return the cubemap buffer cam position to default tracking state
         
         # clean up the shader files (not recommended for distributable builds)
         # complexpbr.remove_shader_files()
@@ -138,8 +140,10 @@ class main(ShowBase):
         screen_quad.set_shader_input('ssr_depth_cutoff', 0.52)
         screen_quad.set_shader_input('ssr_depth_min', 0.49)
         
-        # example of how to customize SSAO 
-        screen_quad.set_shader_input("ssao_samples", 32)  # ssao_samples defaults to 6
+        # example of how to customize SSAO
+        screen_quad.set_shader_input("ssao_radius", 0.99)
+        screen_quad.set_shader_input("ssao_bias", 0.005)
+        screen_quad.set_shader_input("ssao_samples", 32)  # ssao_samples defaults to 0
         
         # example of how to HSV adjust the final image
         screen_quad.set_shader_input("hsv_g", 1.3)  # hsv_g (saturation factor) defaults to 1.0
@@ -158,6 +162,19 @@ class main(ShowBase):
         # scene_filters.set_gamma_adjust(1.1)
         # scene_filters.set_blur_sharpen(0.9)
 ```
+## Usage in a Distributable Application:
+```python
+from direct.showbase.ShowBase import ShowBase
+import complexpbr
+
+class main(ShowBase):
+    def __init__(self):
+        super().__init__()
+
+        complexpbr.apply_shader(self.render, dist=True)  # set dist=True for distributable program
+        # complexpbr.copy_to_dist()  # call this once before distributing to copy over shader files
+```
+
 ## Installing with PyPI:
 ```bash
 pip install panda3d-complexpbr
