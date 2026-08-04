@@ -14,8 +14,8 @@ authors = [
 description = "IBL rendering module supporting real-time reflections and post-processing effects."
 readme = "README.md"
 keywords = ["nonengine","panda3d", "gamedev", "PBR", "IBL", "real-time", "simulation"]
-license = "3-Clause BSD NON-AI License"
-license-files = ["LICENSE",]
+license = "LicenseRef-Proprietary"
+license-files = ["LICENSE","complexpbr/simplepbr_license.txt",]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python :: 3",
