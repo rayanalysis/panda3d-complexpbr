@@ -42,6 +42,64 @@ def rotate_cubemap(task):
     
     return task.cont
 
+def smooth_ssao(ssao_samples=16,ssao_radius=0.4,ssao_bias=0.01,ssao_intensity=0.5,ssao_step_time=0.1):
+    if base.complexpbr_screenspace_init:
+        base.ssao_samples_half = int(ssao_samples/2)
+        base.ssao_current_samples = base.ssao_samples_half
+        base.ssao_down_bool = True
+        base.ssao_bias = ssao_bias
+        base.ssao_current_bias = base.ssao_bias
+        base.ssao_step_time = ssao_step_time
+        base.ssao_radius = ssao_radius
+        
+        base.screen_quad.set_shader_input('ssao_intensity', ssao_intensity)
+        base.screen_quad.set_shader_input("ssao_radius", base.ssao_radius)
+        
+        def smooth_task(task, name='smooth_ssao_task'):
+            if base.ssao_down_bool and base.ssao_current_samples < ssao_samples:
+                base.ssao_current_samples += 1
+                base.screen_quad.set_shader_input('ssao_samples', base.ssao_current_samples)
+                base.ssao_current_bias += (base.ssao_bias/base.ssao_samples_half)
+                base.screen_quad.set_shader_input('ssao_bias', base.ssao_current_bias)
+                
+            else:
+                base.ssao_current_samples -= 1
+                base.screen_quad.set_shader_input('ssao_samples', base.ssao_current_samples)
+                base.ssao_current_bias -= (base.ssao_bias/base.ssao_samples_half)
+                base.screen_quad.set_shader_input('ssao_bias', base.ssao_current_bias)
+                base.ssao_down_bool = False
+                
+            if base.ssao_current_samples < base.ssao_samples_half:
+                base.ssao_down_bool = True
+            
+            # print(base.ssao_current_samples, base.ssao_current_bias)
+            task.delay_time = base.ssao_step_time
+            return task.again
+        
+        base.task_mgr.add(smooth_task)
+    else:
+        print('smooth_ssao failed to start up, did you call screenspace_init() yet?')
+    
+def remove_smooth_ssao():
+    if base.complexpbr_screenspace_init:
+        try:
+            base.task_mgr.remove('smooth_ssao_task')
+
+            ssao_samples = 12
+            ssao_radius = 0.4
+            ssao_bias = 0.01
+            ssao_intensity = 0.5
+            
+            base.screen_quad.set_shader_input('ssao_samples', ssao_samples)
+            base.screen_quad.set_shader_input('ssao_radius', ssao_radius)
+            base.screen_quad.set_shader_input('ssao_bias', ssao_bias)
+            base.screen_quad.set_shader_input('ssao_intensity', ssao_intensity)
+            
+        except:
+            print('smooth_ssao_task not found.')
+    else:
+        print('remove_smooth_ssao failed to start up, did you call screenspace_init() yet?')
+
 def screenspace_init(dist=False):
     auxbits = 0
     auxbits |= AuxBitplaneAttrib.ABOAuxNormal
@@ -118,6 +176,7 @@ def screenspace_init(dist=False):
     screen_quad.set_shader_input("ssao_samples", ssao_samples)
     screen_quad.set_shader_input("ssao_radius", ssao_radius)
     screen_quad.set_shader_input("ssao_bias", ssao_bias)
+    screen_quad.set_shader_input("ssao_bias", ssao_intensity)
     screen_quad.set_shader_input("reflection_threshold", reflection_threshold)
     screen_quad.set_shader_input("hsv_r", hsv_r)
     screen_quad.set_shader_input("hsv_g", hsv_g)  # HSV saturation adjustment
@@ -126,6 +185,7 @@ def screenspace_init(dist=False):
     
     base.screen_quad = screen_quad
     base.render.set_antialias(AntialiasAttrib.MMultisample)
+    base.complexpbr_screenspace_init = True
 
 def complexpbr_rig_init(node, intensity, lut_fill, shadow_boost):
     load_prc_file_data('', 'hardware-animated-vertices #t')
@@ -462,4 +522,4 @@ def complexpbr_default_lighting():
 
 class Shaders:
     def __init__(self):
-        return
+        returnbase.ssao_current_samples
