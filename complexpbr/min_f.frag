@@ -11,6 +11,7 @@ uniform mat4 p3d_ProjectionMatrixInverse;
 uniform float ssao_radius = 0.5;
 uniform float ssao_bias = 0.25;
 uniform int ssao_samples;
+uniform float ssao_intensity;
 
 // Bloom
 uniform float bloom_intensity;
@@ -139,20 +140,20 @@ float ssao(in vec2 uv, in vec3 viewPos, in vec3 viewNormal) {
     float occlusion = 0.0;
     for (int i = 0; i < ssao_samples; ++i) {
         vec3 randVec = randomSample(i, uv);
-        vec3 offset = ssao_radius * (viewNormal * randVec.z + vec3(randVec.xy * vec2(ssao_radius), 0.0));
+        vec3 offset = viewNormal * randVec.z + vec3(randVec.xy * vec2(ssao_radius), 0.0);
         vec3 samplePos = viewPos + offset;
 
         vec4 proj = p3d_ProjectionMatrixInverse * vec4(samplePos, 1.0);
         proj.xyz /= proj.w;
         vec2 sampleUV = proj.xy * 0.5 + 0.5;
 
-        float depthTex = texture(depth_tex, sampleUV).r;
+        float depth = 1.0 - texture(depth_tex, sampleUV).r + 0.5;
 
-        vec4 clip = vec4(sampleUV * 2.0 - 1.0, depthTex * 2.0 - 1.0, 1.0);
+        vec4 clip = vec4(sampleUV, depth, 1.0);
         vec4 viewPosSample = p3d_ProjectionMatrixInverse * clip;
         viewPosSample.xyz /= viewPosSample.w;
 
-        float hidden = (samplePos.z < viewPosSample.z - ssao_bias) ? 1.0 : 0.0;
+        float hidden = (samplePos.z > viewPosSample.z - ssao_bias) ? ssao_intensity : 0.0;
         occlusion += hidden;
     }
     return 1.0 - occlusion / float(ssao_samples);
