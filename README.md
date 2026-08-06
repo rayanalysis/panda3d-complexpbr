@@ -144,6 +144,10 @@ class main(ShowBase):
         screen_quad.set_shader_input("ssao_radius", 0.99)
         screen_quad.set_shader_input("ssao_bias", 0.005)
         screen_quad.set_shader_input("ssao_samples", 32)  # ssao_samples defaults to 0
+        # optionally start an autosmoothed SSAO complexpbr task as of 0.6.6
+        screen_quad.set_shader_input("ssao_intensity", 0.8)
+        complexpbr.smooth_ssao(ssao_samples=32,ssao_radius=0.01,ssao_bias=0.05,ssao_intensity=0.8,ssao_step_time=0.1)
+        # complexpbr.remove_smooth_ssao()
         
         # example of how to HSV adjust the final image
         screen_quad.set_shader_input("hsv_g", 1.3)  # hsv_g (saturation factor) defaults to 1.0

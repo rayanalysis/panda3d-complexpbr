@@ -176,7 +176,7 @@ def screenspace_init(dist=False):
     screen_quad.set_shader_input("ssao_samples", ssao_samples)
     screen_quad.set_shader_input("ssao_radius", ssao_radius)
     screen_quad.set_shader_input("ssao_bias", ssao_bias)
-    screen_quad.set_shader_input("ssao_bias", ssao_intensity)
+    screen_quad.set_shader_input("ssao_intensity", ssao_intensity)
     screen_quad.set_shader_input("reflection_threshold", reflection_threshold)
     screen_quad.set_shader_input("hsv_r", hsv_r)
     screen_quad.set_shader_input("hsv_g", hsv_g)  # HSV saturation adjustment
@@ -522,4 +522,4 @@ def complexpbr_default_lighting():
 
 class Shaders:
     def __init__(self):
-        returnbase.ssao_current_samples
+        return
