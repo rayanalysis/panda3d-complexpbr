@@ -5,6 +5,7 @@ uniform sampler2D depth_tex;  // depth
 uniform sampler2D normal_tex;  // normal
 uniform vec2 window_size;
 uniform mat4 p3d_ViewMatrix;
+uniform mat4 p3d_ProjectionMatrix;
 uniform mat4 p3d_ProjectionMatrixInverse;
 
 // SSAO
@@ -143,13 +144,13 @@ float ssao(in vec2 uv, in vec3 viewPos, in vec3 viewNormal) {
         vec3 offset = viewNormal * randVec.z + vec3(randVec.xy * vec2(ssao_radius), 0.0);
         vec3 samplePos = viewPos + offset;
 
-        vec4 proj = p3d_ProjectionMatrixInverse * vec4(samplePos, 1.0);
+        vec4 proj = p3d_ProjectionMatrix * vec4(samplePos, 1.0);
         proj.xyz /= proj.w;
         vec2 sampleUV = proj.xy * 0.5 + 0.5;
 
         float depth = 1.0 - texture(depth_tex, sampleUV).r + 0.5;
 
-        vec4 clip = vec4(sampleUV, depth, 1.0);
+        vec4 clip = vec4(sampleUV * 2.0 - 1.0, depth, 1.0);
         vec4 viewPosSample = p3d_ProjectionMatrixInverse * clip;
         viewPosSample.xyz /= viewPosSample.w;
 

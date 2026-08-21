@@ -50,29 +50,27 @@ def smooth_ssao(ssao_samples=16,ssao_radius=0.4,ssao_bias=0.01,ssao_intensity=0.
         base.ssao_bias = ssao_bias
         base.ssao_current_bias = base.ssao_bias
         base.ssao_step_time = ssao_step_time
+        base.ssao_intensity = ssao_intensity
         base.ssao_radius = ssao_radius
         
-        base.screen_quad.set_shader_input('ssao_intensity', ssao_intensity)
+        base.screen_quad.set_shader_input('ssao_intensity', base.ssao_intensity)
         base.screen_quad.set_shader_input("ssao_radius", base.ssao_radius)
         
         def smooth_task(task, name='smooth_ssao_task'):
             if base.ssao_down_bool and base.ssao_current_samples < ssao_samples:
                 base.ssao_current_samples += 1
                 base.screen_quad.set_shader_input('ssao_samples', base.ssao_current_samples)
-                base.ssao_current_bias += (base.ssao_bias/base.ssao_samples_half)
                 base.screen_quad.set_shader_input('ssao_bias', base.ssao_current_bias)
                 
             else:
                 base.ssao_current_samples -= 1
                 base.screen_quad.set_shader_input('ssao_samples', base.ssao_current_samples)
-                base.ssao_current_bias -= (base.ssao_bias/base.ssao_samples_half)
                 base.screen_quad.set_shader_input('ssao_bias', base.ssao_current_bias)
                 base.ssao_down_bool = False
                 
             if base.ssao_current_samples < base.ssao_samples_half:
                 base.ssao_down_bool = True
             
-            # print(base.ssao_current_samples, base.ssao_current_bias)
             task.delay_time = base.ssao_step_time
             return task.again
         
