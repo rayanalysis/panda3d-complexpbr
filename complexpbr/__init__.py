@@ -115,9 +115,10 @@ def screenspace_init(dist=False):
     
     screen_quad = filter_manager.render_scene_into(colortex=scene_tex,
                                                    auxbits=auxbits,
-                                                   depthtex=depth_tex,
+                                                   # depthtex=depth_tex,
                                                    auxtex=normal_tex,
                                                    textures=all_tex)
+    
     Texture.set_textures_power_2(ATS_none)
     window_size = [base.win.get_x_size(),base.win.get_y_size()]
     camera_near = base.camLens.get_near()
