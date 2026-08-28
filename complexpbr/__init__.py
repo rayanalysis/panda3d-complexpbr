@@ -42,7 +42,7 @@ def rotate_cubemap(task):
     
     return task.cont
 
-def smooth_ssao(ssao_samples=16,ssao_radius=0.4,ssao_bias=0.01,ssao_intensity=0.5,ssao_step_time=0.1):
+def smooth_ssao(ssao_samples=64,ssao_radius=0.4,ssao_bias=0.05,ssao_intensity=0.5,ssao_step_time=0.1):
     if base.complexpbr_screenspace_init:
         base.ssao_samples_half = int(ssao_samples/2)
         base.ssao_current_samples = base.ssao_samples_half
@@ -56,7 +56,7 @@ def smooth_ssao(ssao_samples=16,ssao_radius=0.4,ssao_bias=0.01,ssao_intensity=0.
         base.screen_quad.set_shader_input('ssao_intensity', base.ssao_intensity)
         base.screen_quad.set_shader_input("ssao_radius", base.ssao_radius)
         
-        def smooth_task(task, name='smooth_ssao_task'):
+        def smooth_task(task):
             if base.ssao_down_bool and base.ssao_current_samples < ssao_samples:
                 base.ssao_current_samples += 1
                 base.screen_quad.set_shader_input('ssao_samples', base.ssao_current_samples)
@@ -74,19 +74,22 @@ def smooth_ssao(ssao_samples=16,ssao_radius=0.4,ssao_bias=0.01,ssao_intensity=0.
             task.delay_time = base.ssao_step_time
             return task.again
         
-        base.task_mgr.add(smooth_task)
+        base.task_mgr.add(smooth_task, 'smooth_ssao_task')
     else:
         print('smooth_ssao failed to start up, did you call screenspace_init() yet?')
     
 def remove_smooth_ssao():
     if base.complexpbr_screenspace_init:
         try:
-            base.task_mgr.remove('smooth_ssao_task')
+            def ssao_stop(task):
+                base.task_mgr.remove('smooth_ssao_task')
+                
+            base.task_mgr.add(ssao_stop, 'ssao_stop')
 
-            ssao_samples = 12
-            ssao_radius = 0.4
-            ssao_bias = 0.01
-            ssao_intensity = 0.5
+            ssao_samples = 0
+            ssao_radius = 0.0
+            ssao_bias = 0.0
+            ssao_intensity = 0.0
             
             base.screen_quad.set_shader_input('ssao_samples', ssao_samples)
             base.screen_quad.set_shader_input('ssao_radius', ssao_radius)
@@ -134,9 +137,9 @@ def screenspace_init(dist=False):
     ssr_depth_cutoff = 0.6
     ssr_depth_min = 0.5
     ssao_samples = 0
-    ssao_radius = 0.99
-    ssao_bias = 0.005
-    ssao_intensity = 0.5
+    ssao_radius = 0
+    ssao_bias = 0
+    ssao_intensity = 0
     reflection_threshold = 0.1
     hsv_r = 1.0
     hsv_g = 1.0
