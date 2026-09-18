@@ -189,7 +189,7 @@ def screenspace_init(dist=False):
     base.render.set_antialias(AntialiasAttrib.MMultisample)
     base.complexpbr_screenspace_init = True
 
-def complexpbr_rig_init(node, intensity, lut_fill, shadow_boost):
+def complexpbr_rig_init(node, intensity, lut_fill, shadow_boost, soft_shadow_samples):
     load_prc_file_data('', 'hardware-animated-vertices #t')
     load_prc_file_data('', 'framebuffer-srgb #t')
     load_prc_file_data('', 'framebuffer-depth-32 1')
@@ -211,10 +211,10 @@ def complexpbr_rig_init(node, intensity, lut_fill, shadow_boost):
     else:
         brdf_lut_tex.load(brdf_lut_image)
 
-    shader_cam_pos = Vec3(base.cam.get_pos(base.render))
     displacement_scale_val = 0.0  # default to 0 to avoid having to check for displacement
     displacement_map = Texture()
     specular_factor = 1.0
+    soft_shadow_inverse_radius = 500
 
     node.set_shader(base.complexpbr_shader)
 
@@ -226,6 +226,8 @@ def complexpbr_rig_init(node, intensity, lut_fill, shadow_boost):
     node.set_shader_input("displacement_scale", displacement_scale_val)
     node.set_shader_input("displacement_map", displacement_map)
     node.set_shader_input("specular_factor", specular_factor)
+    node.set_shader_input("soft_shadow_samples", soft_shadow_samples)
+    node.set_shader_input("soft_shadow_inverse_radius", soft_shadow_inverse_radius)
 
     base.task_mgr.add(rotate_cubemap)
 
@@ -249,7 +251,7 @@ def copy_to_dist():
     (Path('min_f.frag')).write_text(s_frag)
             
 def apply_shader(node=None,intensity=1.0,env_cam_pos=None,env_res=256,lut_fill=[1.0,0.0,0.0],complexpbr_z_tracking=False,
-custom_dir='',default_lighting=False,shadow_boost=0.0,dist=False):
+custom_dir='',default_lighting=False,shadow_boost=0.0,soft_shadow_samples=0,dist=False):
     global complexpbr_init
     
     base.complexpbr_custom_dir = custom_dir
@@ -277,7 +279,7 @@ custom_dir='',default_lighting=False,shadow_boost=0.0,dist=False):
         base.complexpbr_z_tracking = complexpbr_z_tracking
         base.complexpbr_append_shader_count = 0
 
-    complexpbr_rig_init(node, intensity=intensity, lut_fill=lut_fill, shadow_boost=shadow_boost)
+    complexpbr_rig_init(node, intensity=intensity, lut_fill=lut_fill, shadow_boost=shadow_boost, soft_shadow_samples=soft_shadow_samples)
     
     if default_lighting:
         try:

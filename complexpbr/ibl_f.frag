@@ -23,6 +23,8 @@ in vec4 v_shadow_pos[MAX_LIGHTS];
 uniform float ao;
 uniform float specular_factor;
 uniform float shadow_boost;
+uniform int soft_shadow_samples = 1;
+uniform int soft_shadow_inverse_radius = 500;
 
 const float LIGHT_CUTOFF = 0.001;
 const float SPOTSMOOTH = 0.1;
@@ -43,41 +45,6 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-float DistributionGGX(vec3 N, vec3 H, float roughness)
-{
-    float a = roughness * roughness;
-    float a2 = a * a;
-    float NdotH = max(dot(N, H), 0.0);
-    float NdotH2 = NdotH * NdotH;
-
-    float num = a2;
-    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-    denom = PI * denom * denom;
-
-    return num / denom;
-}
-
-float GeometrySchlickGGX(float NdotV, float roughness)
-{
-    float r = (roughness + 1.0);
-    float k = (r * r) / 8.0;
-
-    float num = NdotV;
-    float denom = NdotV * (1.0 - k) + k;
-
-    return num / denom;
-}
-
-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
-{
-    float NdotV = max(dot(N, V), 0.0);
-    float NdotL = max(dot(N, L), 0.0);
-    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
-    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
-
-    return ggx1 * ggx2;
-}
-
 vec3 getIBL(vec3 N, vec3 V, vec3 F0, vec3 diffuse_color, float roughness)
 {
     vec3 R = reflect(-V, N);
@@ -89,13 +56,15 @@ vec3 getIBL(vec3 N, vec3 V, vec3 F0, vec3 diffuse_color, float roughness)
 
     const float MAX_REFLECTION_LOD = 4.0;
     vec3 prefilteredColor = vec3(0.0);
+
     if (roughness < 0.7) 
         prefilteredColor = textureLod(cubemaptex, R, roughness * MAX_REFLECTION_LOD).rgb;
     else if (roughness >= 0.7)
         if (roughness < 0.99)
             prefilteredColor = textureLod(cubemaptex, R, roughness * MAX_REFLECTION_LOD).rgb * vec3(0.04);
-    else if (roughness >= 0.99) 
-        prefilteredColor = prefilteredColor;
+    	else if (roughness >= 0.99) 
+        	prefilteredColor = prefilteredColor;
+
     vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
     vec3 ao_final = (kD * diffuse + specular) * ao;
@@ -161,10 +130,45 @@ float normal_blur(in float x, in float sig)
     return 0.3989*exp(-0.5*x*x/(sig*sig))/sig;
 }
 
+float hash(float n)
+{
+    return fract(sin(n) * (43758.5453/16));
+}
+
+vec2 random_sample(int i, vec2 tc, float lightDist)
+{
+	float r1 = hash(float(i) + 1.0 + tc.x * tc.y * lightDist) / soft_shadow_inverse_radius;
+	float r2 = hash(float(i) + 21.0 + tc.y * tc.x * lightDist) / soft_shadow_inverse_radius;
+    float phi = 2.0 * 3.14159265 * r1;
+    float cosTheta = 1.0 - r2;
+    float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+    float s = sin(phi) * sinTheta;
+    float c = cos(phi) * sinTheta;
+    
+    if (mod(i, 2) == 0)
+		return vec2(s,c);
+    else
+		return vec2(-s,-c);
+}
+
+float soft_shadow(sampler2DShadow shadowMap, vec4 shadowCoord, float NdotL, float lightDist, int totalSamples)
+{
+	float shadow = 0.0;
+	int soft_shadow_divisor = totalSamples - 1;
+	
+    for (int i = 0; i < totalSamples; i++) {
+        vec2 random_shadow = random_sample(i, v_texcoord, lightDist);
+        float projected_random_shadow = textureProj(shadowMap, shadowCoord + vec4(random_shadow, 0.0, 0.0));
+        shadow += projected_random_shadow;
+    }
+    
+    shadow /= soft_shadow_divisor;
+    return shadow;
+}
+
 void main()
 {
     vec3 N = normalize(v_tbn * (2.0 * texture(p3d_Texture2, v_texcoord).rgb - 1.0));
-    // vec3 N = normalize((2.0 * texture(p3d_Texture2, v_texcoord).rgb - 1.0));
     vec3 V = normalize(-v_position);
 
     // sample the albedo texture
@@ -184,7 +188,6 @@ void main()
     vec3 diffuse_color = (albedo.rgb * (vec3(1.0) - F0)) * (1.0 - metallic);
     vec3 spec_color = F0;
 
-    // vec3 color = vec3(0.0);
     vec4 color = vec4(vec3(0.0), albedo.a);
 
     // compute the direct lighting from light sources
@@ -205,9 +208,6 @@ void main()
         float spotcutoff = p3d_LightSource[i].spotCosCutoff;
         float shadowSpot = smoothstep(spotcutoff-SPOTSMOOTH, spotcutoff+SPOTSMOOTH, spotcos);
 
-        float shadowCaster = textureProj(p3d_LightSource[i].shadowMap, v_shadow_pos[i]);
-        float shadow = shadowSpot * shadowCaster * attenuation_factor;
-
         FunctionParameters func_params;
         func_params.n_dot_l = clamp(dot(N, l), 0.0, 1.0);
         func_params.n_dot_v = clamp(abs(dot(N, V)), 0.0, 1.0);
@@ -219,6 +219,14 @@ void main()
         func_params.reflection0 = spec_color;
         func_params.diffuse_color = diffuse_color;
         func_params.specular_color = spec_color;
+        
+        float shadowCaster = 0.0;
+        if (soft_shadow_samples >= 8)
+			shadowCaster = soft_shadow(p3d_LightSource[i].shadowMap, v_shadow_pos[i], func_params.n_dot_l, dist, soft_shadow_samples);
+		else
+        	shadowCaster = textureProj(p3d_LightSource[i].shadowMap, v_shadow_pos[i]);
+        	
+        float shadow = shadowSpot * shadowCaster * attenuation_factor;
 
         float V = visibility_occlusion(func_params); // V = G / (4 * n_dot_l * n_dot_v)
         float D = microfacet_distribution(func_params);
@@ -231,12 +239,7 @@ void main()
     
     vec3 ibl = getIBL(N, V, F0, diffuse_color, roughness);
     o_color = vec4(ibl + emission + color.rgb, color.a);
-    // o_color = vec4(v_tbn * texture(p3d_Texture2, v_texcoord).rgb, 1)
-    // o_color = vec4(v_tbn, 1);
-    // o_color = vec4(N, color.a);
     // send the normal texture to post
     // imageStore(outputNormalNorm, coord, vec4(texture(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5),1));
     outputNormal = texture(p3d_Texture2, v_texcoord).rgb * 0.5 + vec3(0.5);
-    // outputNormal = N * 0.5 + vec3(0.5);
-    // outputNormal = N;
 }
