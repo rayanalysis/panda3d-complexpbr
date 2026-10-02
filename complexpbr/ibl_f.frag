@@ -23,8 +23,8 @@ in vec4 v_shadow_pos[MAX_LIGHTS];
 uniform float ao;
 uniform float specular_factor;
 uniform float shadow_boost;
-uniform int soft_shadow_samples = 1;
-uniform int soft_shadow_inverse_radius = 500;
+uniform int soft_shadow_samples;
+uniform int soft_shadow_inverse_radius;
 
 const float LIGHT_CUTOFF = 0.001;
 const float SPOTSMOOTH = 0.1;
@@ -103,7 +103,7 @@ struct FunctionParameters {
 };
 
 // Smith GGX with fast sqrt approximation (see https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf/geometricshadowing(specularg))
-float visibility_occlusion(FunctionParameters func_params) {
+float visibilityOcclusion(FunctionParameters func_params) {
     float r = func_params.roughness;
     float r2 = r * r;
     float n_dot_l = func_params.n_dot_l;
@@ -114,32 +114,27 @@ float visibility_occlusion(FunctionParameters func_params) {
 }
 
 // GGX/Trowbridge-Reitz
-float microfacet_distribution(FunctionParameters func_params) {
+float microfacetDistribution(FunctionParameters func_params) {
     float roughness2 = func_params.roughness * func_params.roughness;
     float f = (func_params.n_dot_h * func_params.n_dot_h) * (roughness2 - 1.0) + 1.0;
     return roughness2 / (PI * f * f);
 }
 
 // Lambert
-float diffuse_function(FunctionParameters func_params) {
+float diffuseFunction(FunctionParameters func_params) {
     return 1.0 / PI;
-}
-
-float normal_blur(in float x, in float sig)
-{
-    return 0.3989*exp(-0.5*x*x/(sig*sig))/sig;
 }
 
 float hash(float n)
 {
-    return fract(sin(n) * (43758.5453/16));
+    return fract(sin(n) * (2734.90908));
 }
 
-vec2 random_sample(int i, vec2 tc, float lightDist)
+vec2 randomSample(int i, vec2 tc, float lightDist)
 {
 	float r1 = hash(float(i) + 1.0 + tc.x * tc.y * lightDist) / soft_shadow_inverse_radius;
 	float r2 = hash(float(i) + 21.0 + tc.y * tc.x * lightDist) / soft_shadow_inverse_radius;
-    float phi = 2.0 * 3.14159265 * r1;
+    float phi = 2.0 * PI * r1;
     float cosTheta = 1.0 - r2;
     float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
     float s = sin(phi) * sinTheta;
@@ -151,13 +146,13 @@ vec2 random_sample(int i, vec2 tc, float lightDist)
 		return vec2(-s,-c);
 }
 
-float soft_shadow(sampler2DShadow shadowMap, vec4 shadowCoord, float NdotL, float lightDist, int totalSamples)
+float softShadow(sampler2DShadow shadowMap, vec4 shadowCoord, float NdotL, float lightDist, int totalSamples)
 {
 	float shadow = 0.0;
 	int soft_shadow_divisor = totalSamples - 1;
 	
     for (int i = 0; i < totalSamples; i++) {
-        vec2 random_shadow = random_sample(i, v_texcoord, lightDist);
+        vec2 random_shadow = randomSample(i, v_texcoord, lightDist);
         float projected_random_shadow = textureProj(shadowMap, shadowCoord + vec4(random_shadow, 0.0, 0.0));
         shadow += projected_random_shadow;
     }
@@ -222,16 +217,16 @@ void main()
         
         float shadowCaster = 0.0;
         if (soft_shadow_samples >= 8)
-			shadowCaster = soft_shadow(p3d_LightSource[i].shadowMap, v_shadow_pos[i], func_params.n_dot_l, dist, soft_shadow_samples);
+			shadowCaster = softShadow(p3d_LightSource[i].shadowMap, v_shadow_pos[i], func_params.n_dot_l, dist, soft_shadow_samples);
 		else
         	shadowCaster = textureProj(p3d_LightSource[i].shadowMap, v_shadow_pos[i]);
         	
         float shadow = shadowSpot * shadowCaster * attenuation_factor;
 
-        float V = visibility_occlusion(func_params); // V = G / (4 * n_dot_l * n_dot_v)
-        float D = microfacet_distribution(func_params);
+        float V = visibilityOcclusion(func_params); // V = G / (4 * n_dot_l * n_dot_v)
+        float D = microfacetDistribution(func_params);
 
-        vec3 diffuse_contrib = (diffuse_color * p3d_LightModel.ambient.rgb) * diffuse_function(func_params);
+        vec3 diffuse_contrib = (diffuse_color * p3d_LightModel.ambient.rgb) * diffuseFunction(func_params);
         vec3 spec_contrib = vec3(F0 * V * D);
         color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib) * shadow;
         color.rgb += albedo.rgb * shadow_boost; // node-level shadow boost heuristic
